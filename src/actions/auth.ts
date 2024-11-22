@@ -91,7 +91,7 @@ export const login = async ({
 
   revalidatePath("/");
 
-  return { success: true, message: "Login successfull." };
+  return { success: true, message: "Login successful." };
 };
 
 export const logout = async () => {
@@ -114,5 +114,5 @@ export const logout = async () => {
 
   revalidatePath("/");
 
-  return { success: true, message: "Logout successfull." };
+  return { success: true, message: "Logout successful." };
 };
