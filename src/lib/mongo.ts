@@ -5,10 +5,10 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-const uri = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!uri) {
-  throw new Error("MongoDB URI is not defined!");
+if (!MONGODB_URI) {
+  throw new Error("MONGODB_URI is not defined in .env!");
 }
 
 let client: MongoClient;
@@ -16,7 +16,7 @@ export let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
-    client = new MongoClient(uri, {
+    client = new MongoClient(MONGODB_URI, {
       serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === "development") {
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  client = new MongoClient(uri, {
+  client = new MongoClient(MONGODB_URI, {
     serverApi: {
       version: ServerApiVersion.v1,
       strict: true,

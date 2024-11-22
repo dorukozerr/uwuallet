@@ -1,3 +1,14 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript", "prettier"]
+  "extends": ["next/core-web-vitals", "next/typescript", "prettier"],
+  "rules": {
+    "arrow-body-style": "error",
+    "prefer-arrow-callback": "error",
+    "no-restricted-syntax": [
+      "error",
+      "FunctionExpression",
+      "FunctionDeclaration"
+    ],
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "react/display-name": 0
+  }
 }
