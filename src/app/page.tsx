@@ -1,11 +1,21 @@
 import { checkAuth } from "@/actions/auth";
+import { getTransactions } from "@/actions/transactions";
+import { Transaction } from "@/types";
 import { AuthenticationForm } from "@/components/authentication-form";
 import { Dashboard } from "@/components/dashboard";
 
 const Page = async () => {
-  const isAuthenticated = await checkAuth();
+  const { success: isAuthenticated, username } = await checkAuth();
 
-  return isAuthenticated.success ? <Dashboard /> : <AuthenticationForm />;
+  if (!isAuthenticated || !username) {
+    return <AuthenticationForm />;
+  }
+
+  const { transactions } = await getTransactions({ username });
+
+  const t = JSON.parse(JSON.stringify(transactions)) as Transaction[];
+
+  return <Dashboard username={username} transactions={t} />;
 };
 
 export default Page;

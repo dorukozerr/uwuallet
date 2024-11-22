@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { login, register } from "@/actions/auth";
+import { authenticationFormSchema } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,22 +19,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
-const formSchema = z.object({
-  username: z
-    .string()
-    .min(3, { message: "Username should be at least 3 character." })
-    .max(50, { message: "Username can be maximum 50 character." }),
-  password: z
-    .string()
-    .min(3, { message: "Password should be at least 3 character." })
-    .max(50, { message: "Password can be maximum 50 character." }),
-});
-
 export const AuthenticationForm = () => {
   const [formType, setFormType] = useState<"login" | "register">("login");
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof authenticationFormSchema>>({
+    resolver: zodResolver(authenticationFormSchema),
     defaultValues: {
       username: "",
       password: "",
@@ -44,7 +34,7 @@ export const AuthenticationForm = () => {
     form.reset();
   }, [formType, form]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof authenticationFormSchema>) => {
     if (formType === "login") {
       const res = await login(values);
       toast(res.message);
