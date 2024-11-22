@@ -21,14 +21,16 @@ export const checkAuth = async () => {
     const token = cookieStore.get("token");
 
     if (!token) {
-      return { success: false, message: "Not authenticated." };
+      return { success: false };
     }
 
-    verify(token.value, JWT_SECRET);
+    const verifiedToken = verify(token.value, JWT_SECRET);
 
-    return { success: true, message: "Authenticated." };
+    const username = (verifiedToken as { username: string }).username;
+
+    return { success: true, username };
   } catch {
-    return { success: false, message: "Not authenticated." };
+    return { success: false };
   }
 };
 
@@ -54,10 +56,7 @@ export const register = async ({
     createdAt: new Date(),
   });
 
-  return {
-    success: true,
-    message: "Registration successfull, please log in.",
-  };
+  return login({ username, password });
 };
 
 export const login = async ({

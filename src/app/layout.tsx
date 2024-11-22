@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggler } from "@/components/theme-toggler";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const rubik = Rubik({
@@ -32,11 +33,12 @@ const RootLayout = ({
         <main className="mx-auto flex h-full w-full max-w-[1440px] flex-col">
           <header className="h-18 flex w-full items-center justify-between border-b border-border p-4">
             <h1 className="text-lg font-bold leading-tight sm:text-2xl">
-              Expense Tracker
+              Kawai Expense Tracker
             </h1>
             <ThemeToggler />
           </header>
           <section className="h-full w-full flex-1 p-4">{children}</section>
+          <Toaster />
         </main>
       </ThemeProvider>
     </body>
