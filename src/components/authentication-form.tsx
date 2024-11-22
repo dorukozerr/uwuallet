@@ -104,7 +104,7 @@ export const AuthenticationForm = () => {
             </Button>
             {formType === "login" ? (
               <p className="text-sm">
-                Don't have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <span
                   className="cursor-pointer underline"
                   onClick={() => setFormType("register")}
