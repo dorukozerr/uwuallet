@@ -51,7 +51,6 @@ export const AuthenticationForm = () => {
     } else if (formType === "register") {
       const res = await register(values);
       toast(res.message);
-      if (res.success) setFormType("login");
     }
   };
 
