@@ -8,9 +8,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 
-export const ThemeToggler = () => {
+export const ThemeToggler = ({ mode }: { mode: "mobile" | "desktop" }) => {
   const { setTheme } = useTheme();
 
   const dropdownMenuItems = [
@@ -19,7 +24,7 @@ export const ThemeToggler = () => {
     { label: "System", onClick: () => setTheme("system") },
   ];
 
-  return (
+  return mode === "desktop" ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon">
@@ -38,5 +43,25 @@ export const ThemeToggler = () => {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  ) : mode === "mobile" ? (
+    <DropdownMenuGroup>
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <span>Theme</span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            {dropdownMenuItems.map(({ label, onClick }, index) => (
+              <DropdownMenuItem
+                onClick={onClick}
+                key={`themToggler-dropdownItem-${index}`}
+              >
+                <span>{label}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuPortal>
+      </DropdownMenuSub>
+    </DropdownMenuGroup>
+  ) : null;
 };

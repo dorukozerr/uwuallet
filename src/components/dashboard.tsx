@@ -26,9 +26,7 @@ export const Dashboard = ({
     <>
       <div className="flex h-full w-full flex-col items-start justify-start gap-4">
         <div className="flex w-full items-center justify-between">
-          <h1 className="text-lg capitalize sm:text-3xl">
-            Welcome {username}!
-          </h1>
+          <h1 className="text-lg capitalize sm:text-xl">Welcome {username}!</h1>
           <div className="flex items-center justify-center gap-4">
             <Button
               onClick={() =>
@@ -43,7 +41,19 @@ export const Dashboard = ({
             </Button>
           </div>
         </div>
-        <div>{JSON.stringify(transactions)}</div>
+        <div className="w-full flex-1 overflow-auto">
+          {transactions.length ? (
+            <div className="flex h-full w-full items-center justify-center">
+              {JSON.stringify(transactions)}
+            </div>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <h6 className="max-w-[400px] text-center text-lg sm:p-8 sm:text-xl">
+                Currently you have no transaction record, please add some.
+              </h6>
+            </div>
+          )}
+        </div>
       </div>
       <TransactionDialog
         open={transactionDialogState.open}
