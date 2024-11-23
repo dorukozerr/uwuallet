@@ -62,8 +62,6 @@ export const updateTransaction = async ({ _id, ...newData }: Transaction) => {
       { $set: { ...newData, date: new Date(newData.date) } }
     );
 
-    console.log("res =>", res);
-
     if (res) revalidatePath("/");
 
     return res
