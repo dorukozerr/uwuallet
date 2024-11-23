@@ -13,7 +13,7 @@ export const Header = async () => {
   const { success: isAuthenticated } = await checkAuth();
 
   return (
-    <header className="h-18 flex w-full items-center justify-between border-b border-border p-4">
+    <header className="h-18 mx-auto flex w-full max-w-[1440px] items-center justify-between border-b border-border p-4">
       <h1 className="text-lg font-bold leading-tight sm:text-2xl">
         Kawai Expense Tracker
       </h1>

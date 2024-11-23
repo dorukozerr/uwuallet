@@ -30,9 +30,9 @@ const RootLayout = ({
         enableSystem
         disableTransitionOnChange
       >
-        <main className="mx-auto flex h-full w-full max-w-[1440px] flex-col">
+        <main className="flex h-full w-full flex-col">
           <Header />
-          <section className="h-full w-full flex-1 p-4">{children}</section>
+          <section className="w-full flex-1 overflow-auto">{children}</section>
           <Toaster />
         </main>
       </ThemeProvider>

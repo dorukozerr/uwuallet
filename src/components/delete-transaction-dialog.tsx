@@ -39,17 +39,17 @@ export const DeleteTransactionDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="h-[min(530px,90vh)] max-w-[min(500px,90vw)] gap-4 space-y-0 overflow-auto rounded-md p-0">
+      <DialogContent className="h-max max-h-[95vh] max-w-[min(500px,95vw)] gap-4 space-y-0 overflow-auto rounded-md p-0">
         <DialogHeader className="gap-0 space-y-4 p-0">
-          <div className="flex items-center gap-2 px-6 pt-6 text-destructive">
+          <div className="sticky left-0 top-0 flex items-center gap-2 bg-background px-4 pt-4 text-destructive sm:px-6 sm:pt-6">
             <AlertTriangle className="h-5 w-5" />
             <DialogTitle>Remove This Transaction</DialogTitle>
           </div>
-          <DialogDescription className="h-max px-6 text-left">
+          <DialogDescription className="h-max px-4 text-left sm:px-6">
             Are you sure you want to delete this transaction? This action cannot
             be undone and will affect your:
           </DialogDescription>
-          <div className="space-y-4 px-6 text-muted-foreground">
+          <div className="space-y-4 px-4 text-muted-foreground sm:px-6">
             <ul className="list-disc space-y-1 pl-4 text-left">
               <li>Total balance calculations</li>
               <li>Monthly expense reports</li>
@@ -77,7 +77,7 @@ export const DeleteTransactionDialog = ({
             </div>
           </div>
         </DialogHeader>
-        <DialogFooter className="sticky bottom-0 left-0 h-max w-full gap-4 border-t border-border bg-background px-6 py-4 sm:gap-0">
+        <DialogFooter className="sticky bottom-0 left-0 h-max w-full gap-4 border-t border-border bg-background px-4 py-2 sm:gap-0 sm:px-6 sm:py-4">
           <Button onClick={onOpenChange} variant="outline">
             Cancel
           </Button>

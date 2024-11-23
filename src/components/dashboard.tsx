@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontalIcon } from "lucide-react";
+import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 import { Transaction } from "@/types";
 import { TransactionDialog } from "@/components/transaction-dialog";
@@ -41,11 +41,15 @@ export const Dashboard = ({
 
   return (
     <>
-      <div className="flex h-full w-full flex-col items-start justify-start gap-4">
+      <div className="mx-auto flex h-max w-full max-w-[1440px] flex-col items-start justify-start gap-4 p-4">
         <div className="flex w-full items-center justify-between">
-          <h1 className="text-lg capitalize sm:text-xl">Welcome {username}!</h1>
+          <h1 className="text-lg font-bold capitalize sm:text-2xl">
+            <span>Welcome {username}!</span>
+          </h1>
           <div className="flex items-center justify-center gap-4">
             <Button
+              variant="outline"
+              className="flex items-center justify-center gap-2"
               onClick={() =>
                 setTransactionDialogState({
                   open: true,
@@ -55,21 +59,32 @@ export const Dashboard = ({
                 })
               }
             >
-              Add Transaction
+              <PlusIcon className="h-[1.2rem] w-[1.2rem]" />
+              <span>Add Transaction</span>
             </Button>
           </div>
         </div>
-        <div className="w-full flex-1 overflow-auto">
+        <div className="h-[500px] w-full border border-red-500"></div>
+        <div className="flex h-max w-full items-center justify-between border border-red-500">
+          <h3 className="text-lg font-bold capitalize sm:text-2xl">
+            Transactions
+          </h3>
+        </div>
+        <div className="h-max w-full">
           {transactions.length ? (
             <div className="flex h-full w-full flex-col items-start justify-start gap-4">
               {transactions.map((transaction, index) => (
                 <div
                   key={`transaction-${index}`}
-                  className="flex h-max w-full items-center justify-start gap-2 rounded-md border border-border p-4 sm:gap-4 md:gap-8"
+                  className="relative flex h-max w-full flex-col items-start justify-start gap-2 rounded-md border border-border p-2 sm:gap-4 sm:p-4 lg:flex-row lg:items-center"
                 >
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="absolute right-2 top-2 max-h-7 min-h-7 min-w-7 max-w-7 sm:max-h-9 sm:min-h-9 sm:min-w-9 sm:max-w-9 lg:static"
+                      >
                         <MoreHorizontalIcon className="h-[1.2rem] w-[1.2rem]" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -99,7 +114,7 @@ export const Dashboard = ({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <div>
+                  <div className="max-w-[100%] pr-12 lg:max-w-[50%]">
                     <h3 className="text-sm font-bold capitalize sm:text-base">
                       {transaction.title}
                     </h3>
@@ -107,32 +122,34 @@ export const Dashboard = ({
                       {transaction.description}
                     </h4>
                   </div>
-                  <div className="flex-1" />
-                  <div className="w-[150px]">
-                    <h6 className="text-sm font-bold sm:text-base">
-                      {transaction.category}
-                    </h6>
-                    <div className="text-xs capitalize text-muted-foreground sm:text-sm">
-                      {transaction.type}
+                  <div className="hidden flex-1 lg:block" />
+                  <div className="flex w-full flex-row-reverse items-center justify-between gap-2 sm:justify-end sm:gap-4 lg:flex-row lg:justify-end">
+                    <div className="w-max">
+                      <h6 className="text-sm font-bold sm:text-base">
+                        {transaction.category}
+                      </h6>
+                      <div className="text-xs capitalize text-muted-foreground sm:text-sm">
+                        {transaction.type}
+                      </div>
                     </div>
-                  </div>
-                  <div className="w-[150px]">
-                    <h6 className="text-sm font-bold sm:text-base">
-                      {transaction.type === "expense" ? "-" : "+"}{" "}
-                      {transaction.amount.toLocaleString("tr-TR")} $
-                    </h6>
-                    <h5 className="text-xs text-muted-foreground sm:text-sm">
-                      {new Date(transaction.date).toLocaleDateString("tr-TR")}
-                    </h5>
-                  </div>
-                  <div
-                    className={`rounded-full border border-border p-2 ${transaction.type === "expense" ? "bg-red-100 dark:bg-red-800" : "bg-green-100 dark:bg-green-800"}`}
-                  >
-                    {transaction.type === "expense" ? (
-                      <ArrowUpIcon className="h-[1.8rem] w-[1.8rem]" />
-                    ) : transaction.type === "income" ? (
-                      <ArrowDownIcon className="h-[1.8rem] w-[1.8rem]" />
-                    ) : null}
+                    <div className="w-max">
+                      <h6 className="text-sm font-bold sm:text-base">
+                        {transaction.type === "expense" ? "-" : "+"}{" "}
+                        {transaction.amount.toLocaleString("tr-TR")} $
+                      </h6>
+                      <h5 className="text-xs text-muted-foreground sm:text-sm">
+                        {new Date(transaction.date).toLocaleDateString("tr-TR")}
+                      </h5>
+                    </div>
+                    <div
+                      className={`rounded-full border border-border p-1 sm:p-2 ${transaction.type === "expense" ? "bg-red-100 dark:bg-red-800" : "bg-green-100 dark:bg-green-800"}`}
+                    >
+                      {transaction.type === "expense" ? (
+                        <ArrowUpIcon className="h-[1.8rem] w-[1.8rem]" />
+                      ) : transaction.type === "income" ? (
+                        <ArrowDownIcon className="h-[1.8rem] w-[1.8rem]" />
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               ))}

@@ -113,7 +113,7 @@ export const logout = async () => {
     const isAuthenticated = await checkAuth();
 
     if (!isAuthenticated.success) {
-      return { success: false, message: "Not Authenticated" };
+      return { success: false, message: "Not Authenticated." };
     }
 
     const cookieStore = await cookies();

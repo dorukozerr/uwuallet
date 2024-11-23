@@ -118,7 +118,7 @@ export const TransactionDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[min(800px,90vh)] max-w-[min(1300px,90vw)] flex-col rounded-md">
+      <DialogContent className="flex h-[min(800px,95vh)] max-w-[min(1300px,95vw)] flex-col rounded-md p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>
             {mode === "create"

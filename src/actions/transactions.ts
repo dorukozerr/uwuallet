@@ -7,9 +7,27 @@ import { Transaction } from "@/types";
 import { clientPromise } from "@/lib/mongo";
 import { transactionFormSchema } from "@/lib/schemas";
 
-// TODO - Update get collection func maybe, it always get transactions collection anyway
+// TODO - Update get collection func maybe, its always get transactions as collection anyway
 const getCollection = async (collectionName: string) =>
   (await clientPromise).db("expense-tracker").collection(collectionName);
+
+export const getTransactions = async ({ username }: { username: string }) => {
+  try {
+    const collection = await getCollection("transactions");
+
+    const transactions = await collection.find({ username }).toArray();
+
+    return {
+      success: true,
+      message: "Transactions fetched successfully.",
+      transactions,
+    };
+  } catch (error) {
+    console.error("/transactions/getTransactions error =>", error);
+
+    return { success: false, message: "Unknown server error." };
+  }
+};
 
 export const createTransaction = async (
   payload: z.infer<typeof transactionFormSchema> & { username: string }
@@ -35,37 +53,30 @@ export const createTransaction = async (
   }
 };
 
-export const getTransactions = async ({ username }: { username: string }) => {
-  try {
-    const collection = await getCollection("transactions");
-
-    const transactions = await collection.find({ username }).toArray();
-
-    return {
-      success: true,
-      message: "Transactions fetched successfully.",
-      transactions,
-    };
-  } catch (error) {
-    console.error("/transactions/getTransactions error =>", error);
-
-    return { success: false, message: "Unknown server error." };
-  }
-};
-
-export const updateTransaction = async ({ _id, ...newData }: Transaction) => {
+export const updateTransaction = async ({
+  _id,
+  date,
+  endDate,
+  ...newData
+}: Transaction) => {
   try {
     const collection = await getCollection("transactions");
 
     const res = await collection.findOneAndUpdate(
       { _id: new ObjectId(_id), username: newData.username },
-      { $set: { ...newData, date: new Date(newData.date) } }
+      {
+        $set: {
+          ...newData,
+          date: new Date(date),
+          endDate: endDate ? new Date(endDate) : endDate,
+        },
+      }
     );
 
     if (res) revalidatePath("/");
 
     return res
-      ? { success: true, message: `Transaction ${_id} updated successfully.` }
+      ? { success: true, message: "Transaction updated successfully." }
       : { success: false, message: "Transaction could not be updated." };
   } catch (error) {
     console.error("/transactions/updateTransaction error =>", error);
@@ -92,7 +103,7 @@ export const deleteTransaction = async ({
     if (res) revalidatePath("/");
 
     return res
-      ? { success: true, message: `Transaction ${_id} deleted successfully.` }
+      ? { success: true, message: "Transaction deleted successfully." }
       : { success: false, message: "Transaction could not be deleted." };
   } catch (error) {
     console.error("/transactions/deleteTransaction error =>", error);
@@ -100,3 +111,5 @@ export const deleteTransaction = async ({
     return { success: false, message: "Unknown server error." };
   }
 };
+
+export const populateTransactions = async () => {};
