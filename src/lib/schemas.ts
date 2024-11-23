@@ -17,7 +17,7 @@ export const authenticationFormSchema = z.object({
     .max(50, { message: "Password can be maximum 50 character." }),
 });
 
-export const transactionSchema = z
+export const transactionFormSchema = z
   .object({
     title: z
       .string()
@@ -48,6 +48,7 @@ export const transactionSchema = z
         message: "Please select how often this transaction repeats",
       })
       .optional(),
+    endDate: z.string().optional(),
   })
   .refine(
     ({ isRecursive, recursionPeriod }) =>

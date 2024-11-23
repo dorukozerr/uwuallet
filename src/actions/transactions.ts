@@ -5,27 +5,33 @@ import { ObjectId } from "mongodb";
 import { z } from "zod";
 import { Transaction } from "@/types";
 import { clientPromise } from "@/lib/mongo";
-import { transactionSchema } from "@/lib/schemas";
+import { transactionFormSchema } from "@/lib/schemas";
 
+// TODO - Update get collection func maybe, it always get transactions collection anyway
 const getCollection = async (collectionName: string) =>
   (await clientPromise).db("expense-tracker").collection(collectionName);
 
 export const createTransaction = async (
-  payload: z.infer<typeof transactionSchema> & { username: string }
+  payload: z.infer<typeof transactionFormSchema> & { username: string }
 ) => {
-  const collection = await getCollection("transactions");
+  try {
+    const collection = await getCollection("transactions");
 
-  const res = await collection.insertOne({
-    ...payload,
-    date: new Date(payload.date),
-  });
+    const res = await collection.insertOne({
+      ...payload,
+      date: new Date(payload.date),
+      endDate: payload.endDate ? new Date(payload.endDate) : payload.endDate,
+    });
 
-  if (res.acknowledged) {
-    revalidatePath("/");
+    if (res.acknowledged) revalidatePath("/");
 
-    return { success: true, message: "Transaction added successfully." };
-  } else {
-    return { success: false, message: "Transaction could not be added." };
+    return res.acknowledged
+      ? { success: true, message: "Transaction added successfully." }
+      : { success: false, message: "Transaction could not be added." };
+  } catch (error) {
+    console.error("/transactions/createTransaction error =>", error);
+
+    return { success: false, message: "Unknown server error." };
   }
 };
 
@@ -43,58 +49,56 @@ export const getTransactions = async ({ username }: { username: string }) => {
   } catch (error) {
     console.error("/transactions/getTransactions error =>", error);
 
-    return {
-      success: false,
-      message: "Unknown error happened.",
-      transactions: [],
-    };
+    return { success: false, message: "Unknown server error." };
   }
 };
 
-export const updateTransaction = async (
-  payload: z.infer<typeof transactionSchema> & {
-    _id: string;
-    username: string;
-  }
-) => {
+export const updateTransaction = async ({ _id, ...newData }: Transaction) => {
   try {
     const collection = await getCollection("transactions");
 
-    const { _id, ...newData } = payload;
-
-    const transaction = (await collection.findOne({
-      _id: new ObjectId(payload._id),
-    })) as Transaction | null;
-
-    if (!transaction) {
-      return { success: false, message: "Transaction not found." };
-    }
-
-    const res = await collection.updateOne(
-      { _id: new ObjectId(payload._id), username: payload.username },
+    const res = await collection.findOneAndUpdate(
+      { _id: new ObjectId(_id), username: newData.username },
       { $set: { ...newData, date: new Date(newData.date) } }
     );
 
-    if (res.matchedCount === 0) {
-      return { success: false, message: "Transaction not found." };
-    }
+    console.log("res =>", res);
 
-    if (res.modifiedCount === 0) {
-      return {
-        success: false,
-        message: "No changes were made to the transaction.",
-      };
-    }
+    if (res) revalidatePath("/");
 
-    revalidatePath("/");
-
-    return {
-      success: true,
-      message: `Transaction ${_id} updated successfully.`,
-    };
+    return res
+      ? { success: true, message: `Transaction ${_id} updated successfully.` }
+      : { success: false, message: "Transaction could not be updated." };
   } catch (error) {
     console.error("/transactions/updateTransaction error =>", error);
 
-    return { success: false, message: "Failed to update transaction." };
+    return { success: false, message: "Unknown server error." };
+  }
+};
+
+export const deleteTransaction = async ({
+  _id,
+  username,
+}: {
+  _id: string;
+  username: string;
+}) => {
+  try {
+    const collection = await getCollection("transactions");
+
+    const res = await collection.findOneAndDelete({
+      username,
+      _id: new ObjectId(_id),
+    });
+
+    if (res) revalidatePath("/");
+
+    return res
+      ? { success: true, message: `Transaction ${_id} deleted successfully.` }
+      : { success: false, message: "Transaction could not be deleted." };
+  } catch (error) {
+    console.error("/transactions/deleteTransaction error =>", error);
+
+    return { success: false, message: "Unknown server error." };
   }
 };

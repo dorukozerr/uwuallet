@@ -5,7 +5,14 @@ import { MoreHorizontalIcon } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 import { Transaction } from "@/types";
 import { TransactionDialog } from "@/components/transaction-dialog";
+import { DeleteTransactionDialog } from "@/components/delete-transaction-dialog";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export const Dashboard = ({
   username,
@@ -25,6 +32,12 @@ export const Dashboard = ({
     transaction: null,
     username: "",
   });
+  const [deleteTransactionDialogState, setDeleteTransactionDialogState] =
+    useState<{ open: boolean; _id: string; username: string }>({
+      open: false,
+      _id: "",
+      username: "",
+    });
 
   return (
     <>
@@ -52,49 +65,73 @@ export const Dashboard = ({
               {transactions.map((transaction, index) => (
                 <div
                   key={`transaction-${index}`}
-                  onClick={() =>
-                    setTransactionDialogState({
-                      open: true,
-                      mode: "edit",
-                      transaction,
-                      username,
-                    })
-                  }
-                  className="flex h-max w-full items-center justify-start gap-4 rounded-md border border-border p-4 sm:gap-8"
+                  className="flex h-max w-full items-center justify-start gap-2 rounded-md border border-border p-4 sm:gap-4 md:gap-8"
                 >
-                  <Button variant="outline" size="icon">
-                    <MoreHorizontalIcon className="h-[1.2rem] w-[1.2rem]" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="icon">
+                        <MoreHorizontalIcon className="h-[1.2rem] w-[1.2rem]" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setTransactionDialogState({
+                            open: true,
+                            mode: "edit",
+                            transaction,
+                            username,
+                          })
+                        }
+                      >
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() =>
+                          setDeleteTransactionDialogState({
+                            open: true,
+                            _id: transaction._id,
+                            username,
+                          })
+                        }
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   <div>
-                    <h3 className="text-lg font-bold capitalize sm:text-2xl">
+                    <h3 className="text-sm font-bold capitalize sm:text-base">
                       {transaction.title}
                     </h3>
-                    <h4 className="text-base capitalize sm:text-lg">
+                    <h4 className="text-xs capitalize text-muted-foreground sm:text-sm">
                       {transaction.description}
                     </h4>
                   </div>
                   <div className="flex-1" />
                   <div className="w-[150px]">
-                    <h6 className="text-lg font-semibold">
+                    <h6 className="text-sm font-bold sm:text-base">
                       {transaction.category}
                     </h6>
-                    <h5 className="text-base font-semibold sm:text-xl">
+                    <div className="text-xs capitalize text-muted-foreground sm:text-sm">
+                      {transaction.type}
+                    </div>
+                  </div>
+                  <div className="w-[150px]">
+                    <h6 className="text-sm font-bold sm:text-base">
+                      {transaction.type === "expense" ? "-" : "+"}{" "}
+                      {transaction.amount.toLocaleString("tr-TR")} $
+                    </h6>
+                    <h5 className="text-xs text-muted-foreground sm:text-sm">
                       {new Date(transaction.date).toLocaleDateString("tr-TR")}
                     </h5>
                   </div>
-                  <div className="w-[150px]">
-                    <div className="to-primary text-base font-semibold capitalize sm:text-lg">
-                      {transaction.type}
-                    </div>
-                    <h6 className="text-lg font-bold">
-                      {transaction.amount.toLocaleString("tr-TR")} $
-                    </h6>
-                  </div>
-                  <div className="rounded-full border border-border p-2">
+                  <div
+                    className={`rounded-full border border-border p-2 ${transaction.type === "expense" ? "bg-red-100 dark:bg-red-800" : "bg-green-100 dark:bg-green-800"}`}
+                  >
                     {transaction.type === "expense" ? (
-                      <ArrowUpIcon className="h-[2.2rem] w-[2.2rem]" />
+                      <ArrowUpIcon className="h-[1.8rem] w-[1.8rem]" />
                     ) : transaction.type === "income" ? (
-                      <ArrowDownIcon className="h-[2.2rem] w-[2.2rem]" />
+                      <ArrowDownIcon className="h-[1.8rem] w-[1.8rem]" />
                     ) : null}
                   </div>
                 </div>
@@ -122,6 +159,18 @@ export const Dashboard = ({
         mode={transactionDialogState.mode}
         transaction={transactionDialogState.transaction}
         username={username}
+      />
+      <DeleteTransactionDialog
+        open={deleteTransactionDialogState.open}
+        onOpenChange={() =>
+          setDeleteTransactionDialogState({
+            open: false,
+            _id: "",
+            username: "",
+          })
+        }
+        _id={deleteTransactionDialogState._id}
+        username={deleteTransactionDialogState.username}
       />
     </>
   );

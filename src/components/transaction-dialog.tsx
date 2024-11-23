@@ -5,8 +5,16 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import {
+  TextIcon,
+  DollarSign,
+  Calendar as CalendarIcon,
+  RepeatIcon,
+  Type,
+  ArrowUpDown,
+} from "lucide-react";
 import { createTransaction, updateTransaction } from "@/actions/transactions";
-import { transactionSchema } from "@/lib/schemas";
+import { transactionFormSchema } from "@/lib/schemas";
 import {
   initialTransactionData,
   expenseCategories,
@@ -63,10 +71,10 @@ export const TransactionDialog = ({
   username: string;
 }) => {
   const [isPending, setIsPending] = useState(false);
-  const form = useForm<z.infer<typeof transactionSchema>>({
-    resolver: zodResolver(transactionSchema),
+  const form = useForm<z.infer<typeof transactionFormSchema>>({
+    resolver: zodResolver(transactionFormSchema),
     defaultValues: initialTransactionData as Partial<
-      z.infer<typeof transactionSchema>
+      z.infer<typeof transactionFormSchema>
     >,
   });
 
@@ -75,46 +83,35 @@ export const TransactionDialog = ({
       form.reset(transaction);
     } else {
       form.reset(
-        initialTransactionData as Partial<z.infer<typeof transactionSchema>>
+        initialTransactionData as Partial<z.infer<typeof transactionFormSchema>>
       );
     }
   }, [mode, transaction, form]);
 
-  const onSubmit = async (values: z.infer<typeof transactionSchema>) => {
+  // console.log("transaction-dialog data =>", {
+  //   form: form.watch(),
+  //   transaction,
+  // });
+
+  const onSubmit = async (values: z.infer<typeof transactionFormSchema>) => {
     setIsPending(true);
 
-    if (mode === "create") {
-      const res = await createTransaction({ username, ...values });
+    const res =
+      mode === "create"
+        ? await createTransaction({ username, ...values })
+        : mode === "edit"
+          ? await updateTransaction({
+              _id: transaction?._id || "",
+              username,
+              ...values,
+            })
+          : null;
 
-      if (res.success) {
-        toast(res.message);
-        onOpenChange();
-      } else {
-        toast(res.message, {
-          action: {
-            label: "Try again",
-            onClick: () => form.handleSubmit(onSubmit)(),
-          },
-        });
-      }
+    toast(res?.message || "Invalid dialog mode");
 
-      setIsPending(false);
-    } else if (mode === "edit" && transaction) {
-      const res = await updateTransaction({
-        _id: transaction._id,
-        username,
-        ...values,
-      });
+    if (res?.success) onOpenChange();
 
-      if (res.success) {
-        toast(res.message);
-        onOpenChange();
-      } else {
-        toast(res.message);
-      }
-
-      setIsPending(false);
-    }
+    setIsPending(false);
   };
 
   const isRecursive = form.watch("isRecursive");
@@ -148,15 +145,33 @@ export const TransactionDialog = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <TextIcon className="h-4 w-4" />
+                    Title
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <FormDescription>
-                    A clear, specific name for your transaction that helps you
-                    identify it later. Examples: &apos;Monthly Rent
-                    Payment&apos;, &apos;Freelance Project - Client Name&apos;,
-                    or &apos;Grocery Shopping - Walmart&apos;.
+                  <FormDescription className="text-sm text-muted-foreground">
+                    <span className="flex flex-col gap-2">
+                      <span>
+                        Give your transaction a clear, identifiable name.
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span>• Must be between 3-100 characters</span>
+                        <span>• Use specific names for easier tracking</span>
+                        <span>
+                          • Avoid generic terms like &quot;Payment&quot; or
+                          &quot;Bill&quot;
+                        </span>
+                      </span>
+                      <span className="rounded-md bg-muted/50 p-2 text-xs">
+                        Examples: &quot;Monthly Rent Payment&quot;,
+                        &quot;Grocery Shopping - Walmart&quot;, &quot;Freelance
+                        Work - Design Project&quot;
+                      </span>
+                    </span>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -167,15 +182,35 @@ export const TransactionDialog = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <TextIcon className="h-4 w-4" />
+                    Description
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Additional details about your transaction that provide
-                    context or important information. Include relevant details
-                    like payment methods, invoice numbers, or specific items
-                    purchased.
+                  <FormDescription className="text-sm text-muted-foreground">
+                    <span className="flex flex-col gap-2">
+                      <span>
+                        Add details about your transaction for future reference.
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span>• Must be between 3-300 characters</span>
+                        <span>
+                          • Include relevant details like purpose or location
+                        </span>
+                        <span>
+                          • Add notes that might be helpful for tracking
+                        </span>
+                      </span>
+                      <span className="rounded-md bg-muted/50 p-2 text-xs">
+                        Examples: &quot;Monthly rent payment for apartment
+                        4B&quot;, &quot;Weekly grocery shopping including
+                        household items&quot;, &quot;Frontend development work
+                        for client project&qout;
+                      </span>
+                    </span>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -186,14 +221,31 @@ export const TransactionDialog = ({
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Amount</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Amount
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input type="number" {...field} />
                   </FormControl>
-                  <FormDescription>
-                    The total monetary value of your transaction. For expenses,
-                    enter the amount paid. For income, enter the amount
-                    received. Use positive numbers only.
+                  <FormDescription className="text-sm text-muted-foreground">
+                    <span className="flex flex-col gap-2">
+                      <span>Enter the transaction amount (minimum $1).</span>
+                      <span className="flex flex-col gap-1">
+                        <span>• Use numbers only (decimals allowed)</span>
+                        <span>• Currency is USD</span>
+                        <span>
+                          • For recurring transactions, this amount will be used
+                          for each occurrence
+                        </span>
+                      </span>
+                      <span className="rounded-md bg-muted/50 p-2 text-xs">
+                        Note: Use positive numbers regardless of transaction
+                        type. The type selection (income/expense) will determine
+                        if it&apos;s added or subtracted from your balance.
+                      </span>
+                    </span>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -204,15 +256,20 @@ export const TransactionDialog = ({
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Transaction Type</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <ArrowUpDown className="h-4 w-4" />
+                    Transaction Type
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <Select
                     onValueChange={(e) => {
                       field.onChange(e);
                       form.setValue(
                         "category",
-                        "" as unknown as
-                          | (typeof expenseCategories)[number]
-                          | (typeof incomeCategories)[number]
+                        // TODO - look here and refactor it later.
+                        // Code below annoys me a lot, what is the correct way
+                        // to handle this, I cant just set it to empty string
+                        "" as unknown as (typeof expenseCategories)[number]
                       );
                     }}
                     value={field.value}
@@ -234,10 +291,30 @@ export const TransactionDialog = ({
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription>
-                    Specify whether this is money coming in (Income) or going
-                    out (Expense). This determines available categories and
-                    affects your overall balance calculation.
+                  <FormDescription className="text-sm text-muted-foreground">
+                    <span className="flex flex-col gap-2">
+                      <span>
+                        Select whether this is money coming in or going out.
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span>
+                          • Income: Money you receive (salary, freelance work,
+                          etc.)
+                        </span>
+                        <span>
+                          • Expense: Money you spend (bills, shopping, etc.)
+                        </span>
+                        <span>
+                          • This will affect available categories and balance
+                          calculations
+                        </span>
+                      </span>
+                      <span className="rounded-md bg-muted/50 p-2 text-xs">
+                        Tip: The transaction type will determine the color
+                        coding in your reports (green for income, red for
+                        expenses).
+                      </span>
+                    </span>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -257,7 +334,11 @@ export const TransactionDialog = ({
 
                 return (
                   <FormItem>
-                    <FormLabel>Transaction Category</FormLabel>
+                    <FormLabel className="flex items-center gap-2">
+                      <Type className="h-4 w-4" />
+                      Category
+                      <span className="text-destructive">*</span>
+                    </FormLabel>
                     <Select
                       onValueChange={(e) => {
                         if (e !== "Please choose transaction type first") {
@@ -279,11 +360,25 @@ export const TransactionDialog = ({
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      Select the most appropriate category for your transaction.
-                      This helps in generating accurate financial reports and
-                      tracking spending patterns. Categories differ based on
-                      whether this is an income or expense.
+                    <FormDescription className="text-sm text-muted-foreground">
+                      <span className="flex flex-col gap-2">
+                        <span>
+                          Select a category that best matches your transaction.
+                        </span>
+                        <span className="flex flex-col gap-1">
+                          <span>
+                            • Categories change based on transaction type
+                          </span>
+                          <span>
+                            • Used for generating spending reports and analytics
+                          </span>
+                          <span>• Helps track spending patterns over time</span>
+                        </span>
+                        <span className="rounded-md bg-muted/50 p-2 text-xs">
+                          Example categories: Income: Salary, Freelance,
+                          Investments Expenses: Bills, Food, Transportation
+                        </span>
+                      </span>
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -295,7 +390,11 @@ export const TransactionDialog = ({
               name="date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    Transaction Date
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -315,21 +414,42 @@ export const TransactionDialog = ({
                       <Calendar
                         initialFocus
                         mode="single"
-                        onSelect={(e) => {
-                          if (e === undefined) {
-                            field.onChange("");
-                          } else {
-                            field.onChange(e.toISOString());
-                          }
-                        }}
+                        onSelect={(e) =>
+                          e === undefined
+                            ? field.onChange("")
+                            : field.onChange(e.toISOString())
+                        }
                         selected={new Date(field.value)}
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormDescription>
-                    When the transaction occurred or is scheduled to occur. For
-                    recurring transactions, this will be used as the start date
-                    for future occurrences.
+                  <FormDescription className="text-sm text-muted-foreground">
+                    <span className="flex flex-col gap-2">
+                      <span>
+                        Select when this transaction occurred or when it should
+                        start if recurring.
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span>
+                          • For one-time transactions: Choose the actual
+                          transaction date
+                        </span>
+                        <span>
+                          • For recurring transactions: This becomes the start
+                          date
+                        </span>
+                        <span>
+                          • Past dates are allowed for recording previous
+                          transactions
+                        </span>
+                      </span>
+                      <span className="rounded-md bg-muted/50 p-2 text-xs">
+                        Example: For a monthly rent payment starting from
+                        January, select January 1st as the date. For a coffee
+                        you bought yesterday, simply select yesterday&apos;s
+                        date.
+                      </span>
+                    </span>
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -340,7 +460,11 @@ export const TransactionDialog = ({
               name="isRecursive"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Is Recursive</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <RepeatIcon className="h-4 w-4" />
+                    Recurring Transaction
+                    <span className="text-destructive">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="flex items-start gap-4">
                       <Switch
@@ -348,56 +472,166 @@ export const TransactionDialog = ({
                         onCheckedChange={(e) => {
                           field.onChange(e);
                           form.setValue("recursionPeriod", undefined);
+                          form.setValue("endDate", "");
                         }}
                       />
-                      <FormDescription>
-                        Enable this for regular, repeating transactions like
-                        monthly rent, salary, or subscription payments. This
-                        helps in automatic tracking of recurring expenses or
-                        income.
-                      </FormDescription>
                     </div>
                   </FormControl>
+                  <FormDescription className="text-sm text-muted-foreground">
+                    <span className="flex flex-col gap-2">
+                      <span>
+                        Specify if this transaction repeats regularly.
+                      </span>
+                      <span className="flex flex-col gap-1">
+                        <span>• Enable for regular payments or income</span>
+                        <span>• Requires selecting a recursion period</span>
+                        <span>
+                          • Will create multiple transactions automatically
+                        </span>
+                      </span>
+                      <span className="rounded-md bg-muted/50 p-2 text-xs">
+                        Examples: Monthly rent payments, weekly allowance,
+                        bi-weekly salary deposits
+                      </span>
+                    </span>
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             {isRecursive ? (
-              <FormField
-                control={form.control}
-                name="recursionPeriod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Recursion Period</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger className="text-left capitalize">
-                          <SelectValue />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-[300px] w-auto capitalize sm:max-h-[400px]">
-                        {Object.values(recursionPeriods).map((period) => (
-                          <SelectItem key={period} value={period}>
-                            {period}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      How often this transaction repeats. Choose daily for
-                      everyday expenses, monthly for regular bills or salary, or
-                      yearly for annual payments like insurance or
-                      subscriptions.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <>
+                <FormField
+                  control={form.control}
+                  name="recursionPeriod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <RepeatIcon className="h-4 w-4" />
+                        Frequency
+                        <span className="text-destructive">*</span>
+                      </FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="text-left capitalize">
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="max-h-[300px] w-auto capitalize sm:max-h-[400px]">
+                          {Object.values(recursionPeriods).map((period) => (
+                            <SelectItem key={period} value={period}>
+                              {period}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-sm text-muted-foreground">
+                        <span className="flex flex-col gap-2">
+                          <span>How often should this transaction repeat?</span>
+                          <span className="flex flex-col gap-1">
+                            <span>• Required for recurring transactions</span>
+                            <span>
+                              • Choose from daily, weekly, monthly, or yearly
+                            </span>
+                            <span>
+                              • Affects how transactions are created between
+                              start and end dates
+                            </span>
+                          </span>
+                          <span className="rounded-md bg-muted/50 p-2 text-xs">
+                            Example: Selecting &quot;Monthly&quot; for rent
+                            payment starting Jan 1st and ending Dec 31st will
+                            create 12 transactions
+                          </span>
+                        </span>
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <CalendarIcon className="h-4 w-4" />
+                        Recursion End Date
+                        <span className="text-destructive">*</span>
+                      </FormLabel>
+
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              className="flex w-full justify-start"
+                              variant="outline"
+                            >
+                              {field.value ? (
+                                new Date(field.value).toLocaleDateString(
+                                  "tr-TR"
+                                )
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            initialFocus
+                            mode="single"
+                            onSelect={(e) =>
+                              e === undefined
+                                ? field.onChange("")
+                                : field.onChange(e.toISOString())
+                            }
+                            disabled={(date) =>
+                              date < new Date(form.watch("date"))
+                            }
+                            selected={new Date(field.value || "")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        <span className="flex flex-col gap-2">
+                          <span>
+                            Optional field for recurring transactions. This date
+                            determines when your recurring transaction will
+                            stop.
+                          </span>
+                          <span className="flex flex-col gap-1">
+                            <span>• Must be set after star date</span>
+                            <span>
+                              • Transactions will occur between start date and
+                              end date
+                            </span>
+                            <span>
+                              • Can be modified later through the edit
+                              transaction dialog
+                            </span>
+                          </span>
+                          <span className="rounded-md bg-muted/50 p-2 text-xs">
+                            Example: For a monthly bill starting January 1st
+                            with end date December 31st, the system will create
+                            11 transactions automatically. You should select
+                            next year&apos;s January 1st
+                          </span>
+                        </span>
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             ) : null}
             <button type="submit" className="hidden" />
           </form>
         </Form>
-        <DialogFooter className="h-max gap-4">
+        <DialogFooter className="h-max gap-4 sm:gap-0">
           <Button onClick={onOpenChange} variant="outline">
             Close
           </Button>

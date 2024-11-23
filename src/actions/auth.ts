@@ -29,7 +29,9 @@ export const checkAuth = async () => {
     const username = (verifiedToken as { username: string }).username;
 
     return { success: true, username };
-  } catch {
+  } catch (error) {
+    console.error("/auth/checkAuth error =>", error);
+
     return { success: false };
   }
 };
@@ -41,22 +43,28 @@ export const register = async ({
   username: string;
   password: string;
 }) => {
-  const collection = await getCollection("users");
-  const existingUser = await collection.findOne({ username });
+  try {
+    const collection = await getCollection("users");
+    const existingUser = await collection.findOne({ username });
 
-  if (existingUser) {
-    return { success: false, message: "Username already exists." };
+    if (existingUser) {
+      return { success: false, message: "Username already exists." };
+    }
+
+    const hashedPassword = await hash(password, 10);
+
+    await collection.insertOne({
+      username,
+      password: hashedPassword,
+      createdAt: new Date(),
+    });
+
+    return login({ username, password });
+  } catch (error) {
+    console.error("/auth/register error =>", error);
+
+    return { success: false, message: "Unknown server error." };
   }
-
-  const hashedPassword = await hash(password, 10);
-
-  await collection.insertOne({
-    username,
-    password: hashedPassword,
-    createdAt: new Date(),
-  });
-
-  return login({ username, password });
 };
 
 export const login = async ({
@@ -66,53 +74,65 @@ export const login = async ({
   username: string;
   password: string;
 }) => {
-  const user = await (await getCollection("users")).findOne({ username });
+  try {
+    const user = await (await getCollection("users")).findOne({ username });
 
-  if (!user) {
-    return { success: false, message: "Invalid credentials." };
+    if (!user) {
+      return { success: false, message: "Invalid credentials." };
+    }
+
+    const doesPasswordsMatch = await compare(password, user.password);
+
+    if (!doesPasswordsMatch) {
+      return { success: false, message: "Invalid credentials." };
+    }
+
+    const cookieStore = await cookies();
+
+    cookieStore.set({
+      name: "token",
+      value: sign({ username }, JWT_SECRET, { expiresIn: "24h" }),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24,
+    });
+
+    revalidatePath("/");
+
+    return { success: true, message: "Login successful." };
+  } catch (error) {
+    console.error("/auth/login error =>", error);
+
+    return { success: false, message: "Unknown server error." };
   }
-
-  const doesPasswordsMatch = await compare(password, user.password);
-
-  if (!doesPasswordsMatch) {
-    return { success: false, message: "Invalid credentials." };
-  }
-
-  const cookieStore = await cookies();
-
-  cookieStore.set({
-    name: "token",
-    value: sign({ username }, JWT_SECRET, { expiresIn: "24h" }),
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 60 * 60 * 24,
-  });
-
-  revalidatePath("/");
-
-  return { success: true, message: "Login successful." };
 };
 
 export const logout = async () => {
-  const isAuthenticated = await checkAuth();
+  try {
+    const isAuthenticated = await checkAuth();
 
-  if (!isAuthenticated.success) {
-    return { success: false, message: "Not Authenticated" };
+    if (!isAuthenticated.success) {
+      return { success: false, message: "Not Authenticated" };
+    }
+
+    const cookieStore = await cookies();
+
+    cookieStore.set({
+      name: "token",
+      value: "",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 0,
+    });
+
+    revalidatePath("/");
+
+    return { success: true, message: "Logout successful." };
+  } catch (error) {
+    console.error("/auth/logout error =>", error);
+
+    return { success: false, message: "Unknown server error." };
   }
-
-  const cookieStore = await cookies();
-
-  cookieStore.set({
-    name: "token",
-    value: "",
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 0,
-  });
-
-  revalidatePath("/");
-
-  return { success: true, message: "Logout successful." };
 };

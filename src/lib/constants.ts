@@ -50,4 +50,5 @@ export const initialTransactionData = {
   date: "",
   isRecursive: false,
   recursionPeriod: undefined,
+  endDate: "",
 };

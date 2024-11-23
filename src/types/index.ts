@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { transactionSchema } from "@/lib/schemas";
+import { transactionFormSchema } from "@/lib/schemas";
 
-export interface Transaction extends z.infer<typeof transactionSchema> {
+export interface Transaction extends z.infer<typeof transactionFormSchema> {
   _id: string;
-  createdAt: string;
-  endDate?: string;
+  username: string;
 }
