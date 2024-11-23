@@ -59,7 +59,7 @@ export const AuthenticationForm = () => {
                 <FormItem className="w-full">
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="your_username" {...field} />
+                    <Input placeholder="kawai" {...field} />
                   </FormControl>
                   <FormDescription>Please enter your username.</FormDescription>
                   <FormMessage />
