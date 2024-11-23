@@ -16,10 +16,12 @@ export const Dashboard = ({
     open: boolean;
     mode: "create" | "edit" | "";
     transaction: Transaction | null;
+    username: string;
   }>({
     open: false,
     mode: "",
     transaction: null,
+    username: "",
   });
 
   return (
@@ -34,6 +36,7 @@ export const Dashboard = ({
                   open: true,
                   mode: "create",
                   transaction: null,
+                  username,
                 })
               }
             >
@@ -43,8 +46,22 @@ export const Dashboard = ({
         </div>
         <div className="w-full flex-1 overflow-auto">
           {transactions.length ? (
-            <div className="flex h-full w-full items-center justify-center">
-              {JSON.stringify(transactions)}
+            <div className="flex h-full w-full flex-col items-start justify-start">
+              {transactions.map((transaction, index) => (
+                <div
+                  key={`transaction-${index}`}
+                  onClick={() =>
+                    setTransactionDialogState({
+                      open: true,
+                      mode: "edit",
+                      transaction,
+                      username,
+                    })
+                  }
+                >
+                  {JSON.stringify(transaction)}
+                </div>
+              ))}
             </div>
           ) : (
             <div className="flex h-full w-full items-center justify-center">
@@ -62,10 +79,12 @@ export const Dashboard = ({
             open: false,
             mode: "",
             transaction: null,
+            username: "",
           })
         }
         mode={transactionDialogState.mode}
         transaction={transactionDialogState.transaction}
+        username={username}
       />
     </>
   );
