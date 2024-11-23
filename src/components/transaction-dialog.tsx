@@ -110,12 +110,7 @@ export const TransactionDialog = ({
         toast(res.message);
         onOpenChange();
       } else {
-        toast(res.message, {
-          action: {
-            label: "Try again",
-            onClick: () => form.handleSubmit(onSubmit)(),
-          },
-        });
+        toast(res.message);
       }
 
       setIsPending(false);
@@ -213,7 +208,12 @@ export const TransactionDialog = ({
                   <Select
                     onValueChange={(e) => {
                       field.onChange(e);
-                      form.resetField("category");
+                      form.setValue(
+                        "category",
+                        "" as unknown as
+                          | (typeof expenseCategories)[number]
+                          | (typeof incomeCategories)[number]
+                      );
                     }}
                     value={field.value}
                   >
@@ -342,7 +342,7 @@ export const TransactionDialog = ({
                 <FormItem>
                   <FormLabel>Is Recursive</FormLabel>
                   <FormControl>
-                    <div className="flex items-start gap-2">
+                    <div className="flex items-start gap-4">
                       <Switch
                         checked={field.value}
                         onCheckedChange={(e) => {

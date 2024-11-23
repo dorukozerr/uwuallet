@@ -25,10 +25,7 @@ export const createTransaction = async (
 
     return { success: true, message: "Transaction added successfully." };
   } else {
-    return {
-      success: false,
-      message: "Transaction could not be added.",
-    };
+    return { success: false, message: "Transaction could not be added." };
   }
 };
 
@@ -70,27 +67,16 @@ export const updateTransaction = async (
     })) as Transaction | null;
 
     if (!transaction) {
-      return {
-        success: false,
-        message: "Transaction not found.",
-      };
-    }
-
-    if (payload.isRecursive && transaction.amount !== payload.amount) {
+      return { success: false, message: "Transaction not found." };
     }
 
     const res = await collection.updateOne(
       { _id: new ObjectId(payload._id), username: payload.username },
-      {
-        $set: { ...newData, date: new Date(newData.date) },
-      }
+      { $set: { ...newData, date: new Date(newData.date) } }
     );
 
     if (res.matchedCount === 0) {
-      return {
-        success: false,
-        message: "Transaction not found.",
-      };
+      return { success: false, message: "Transaction not found." };
     }
 
     if (res.modifiedCount === 0) {
@@ -109,9 +95,6 @@ export const updateTransaction = async (
   } catch (error) {
     console.error("/transactions/updateTransaction error =>", error);
 
-    return {
-      success: false,
-      message: "Failed to update transaction.",
-    };
+    return { success: false, message: "Failed to update transaction." };
   }
 };
