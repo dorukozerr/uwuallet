@@ -1,5 +1,6 @@
 import { checkAuth } from "@/actions/auth";
 import { getTransactions } from "@/actions/transactions";
+import { getMetrics } from "@/actions/metrics";
 import { Transaction } from "@/types";
 import { AuthenticationForm } from "@/components/authentication-form";
 import { Dashboard } from "@/components/dashboard";
@@ -12,6 +13,8 @@ const Page = async () => {
   }
 
   const { transactions } = await getTransactions({ username });
+
+  const {} = await getMetrics();
 
   const t = JSON.parse(JSON.stringify(transactions)) as Transaction[];
 

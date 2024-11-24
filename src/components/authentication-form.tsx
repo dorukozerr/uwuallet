@@ -21,6 +21,7 @@ import { toast } from "sonner";
 
 export const AuthenticationForm = () => {
   const [formType, setFormType] = useState<"login" | "register">("login");
+  const [isPending, setIsPending] = useState(false);
 
   const form = useForm<z.infer<typeof authenticationFormSchema>>({
     resolver: zodResolver(authenticationFormSchema),
@@ -35,13 +36,18 @@ export const AuthenticationForm = () => {
   }, [formType, form]);
 
   const onSubmit = async (values: z.infer<typeof authenticationFormSchema>) => {
-    if (formType === "login") {
-      const res = await login(values);
-      toast(res.message);
-    } else if (formType === "register") {
-      const res = await register(values);
-      toast(res.message);
-    }
+    setIsPending(true);
+
+    const res =
+      formType === "login"
+        ? await login(values)
+        : formType === "register"
+          ? await register(values)
+          : null;
+
+    toast(res?.message || "This should never seen.");
+
+    setIsPending(false);
   };
 
   return (
@@ -84,7 +90,7 @@ export const AuthenticationForm = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit">
+            <Button type="submit" disabled={isPending}>
               {formType === "login"
                 ? "Login"
                 : formType === "register"

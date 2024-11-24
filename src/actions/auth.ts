@@ -4,16 +4,13 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { hash, compare } from "bcryptjs";
 import { verify, sign } from "jsonwebtoken";
-import { clientPromise } from "@/lib/mongo";
+import { getCollection } from "@/lib/mongo";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is not defined in .env!");
 }
-
-const getCollection = async (collectionName: string) =>
-  (await clientPromise).db("expense-tracker").collection(collectionName);
 
 export const checkAuth = async () => {
   try {

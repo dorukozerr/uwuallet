@@ -26,6 +26,17 @@ export const expenseCategories = [
   "electronics",
 ] as const;
 
+export const expenseGroups = {
+  housing: ["rent", "mortgage", "utilities", "homeMaintenance"],
+  transportation: ["transportation", "carMaintenance", "fuel"],
+  healthcare: ["medical", "dental", "insurance"],
+  living: ["groceries", "diningOut", "clothing", "personalCare"],
+  family: ["childcare", "education"],
+  leisure: ["entertainment", "subscription", "hobbies"],
+  financial: ["taxes", "investment", "bankFees"],
+  miscellaneous: ["gifts", "petCare", "electronics"],
+} as const;
+
 export const incomeCategories = [
   "salary",
   "bonus",

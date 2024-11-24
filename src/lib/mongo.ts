@@ -12,7 +12,7 @@ if (!MONGODB_URI) {
 }
 
 let client: MongoClient;
-export let clientPromise: Promise<MongoClient>;
+let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
@@ -36,3 +36,6 @@ if (process.env.NODE_ENV === "development") {
   });
   clientPromise = client.connect();
 }
+
+export const getCollection = async (collectionName: string) =>
+  (await clientPromise).db("expense-tracker").collection(collectionName);

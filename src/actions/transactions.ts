@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 import { Transaction } from "@/types";
-import { clientPromise } from "@/lib/mongo";
+import { getCollection } from "@/lib/mongo";
 import { transactionFormSchema } from "@/lib/schemas";
 import { incrementByDay } from "@/lib/utils";
 import {
@@ -12,10 +12,6 @@ import {
   incomeCategories,
   recursionPeriods,
 } from "@/lib/constants";
-
-// TODO - Update get collection func maybe, its always get transactions as collection anyway
-const getCollection = async (collectionName: string) =>
-  (await clientPromise).db("expense-tracker").collection(collectionName);
 
 export const getTransactions = async ({ username }: { username: string }) => {
   try {

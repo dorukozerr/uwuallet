@@ -562,7 +562,6 @@ export const TransactionDialog = ({
                         Recursion End Date
                         <span className="text-destructive">*</span>
                       </FormLabel>
-
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>

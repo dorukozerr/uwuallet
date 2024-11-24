@@ -25,25 +25,39 @@ export const Dashboard = ({
   transactions: Transaction[];
 }) => {
   const { width } = useScreenSize();
-  const [transactionDialogState, setTransactionDialogState] = useState<{
+  const [txDialogState, setTxDialogState] = useState<{
     open: boolean;
     mode: "create" | "edit" | "";
-    transaction: Transaction | null;
+    tx: Transaction | null;
     username: string;
   }>({
     open: false,
     mode: "",
-    transaction: null,
+    tx: null,
     username: "",
   });
-  const [deleteTransactionDialogState, setDeleteTransactionDialogState] =
-    useState<{ open: boolean; _id: string; username: string }>({
-      open: false,
-      _id: "",
-      username: "",
-    });
+  const [deleteTxDialogState, setDeleteTxDialogState] = useState<{
+    open: boolean;
+    _id: string;
+    username: string;
+  }>({
+    open: false,
+    _id: "",
+    username: "",
+  });
+  const [infoSecState, setInfoSecState] = useState<"overview" | "analytics">(
+    "overview"
+  );
 
-  console.log("transactions =>", transactions);
+  const infoSecs = {
+    overview: <div className="h-full w-full">Balance and basic charts</div>,
+    analytics: <div className="h-full w-full">Analytics</div>,
+  };
+
+  const infoSecNavButtons = [
+    { label: "Overview", key: "overview" },
+    { label: "Analytics", key: "analytics" },
+  ] as const;
 
   return (
     <>
@@ -52,7 +66,7 @@ export const Dashboard = ({
           <h1 className="text-lg font-bold capitalize sm:text-2xl">
             <span>Welcome {username}!</span>
           </h1>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-center gap-2">
             <Button
               onClick={async () => {
                 const res = await populateTransactions();
@@ -63,12 +77,12 @@ export const Dashboard = ({
             </Button>
             <Button
               variant="outline"
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-1"
               onClick={() =>
-                setTransactionDialogState({
+                setTxDialogState({
                   open: true,
                   mode: "create",
-                  transaction: null,
+                  tx: null,
                   username,
                 })
               }
@@ -78,7 +92,21 @@ export const Dashboard = ({
             </Button>
           </div>
         </div>
-        <div className="h-[500px] w-full border border-red-500"></div>
+        <div className="flex h-[400px] w-full flex-col justify-start">
+          <div className="flex h-max w-full items-center justify-start gap-2 sm:gap-4">
+            {infoSecNavButtons.map(({ label, key }, buttonIndex) => (
+              <Button
+                key={`ìnfoSecButton-${buttonIndex}`}
+                onClick={() => setInfoSecState(key)}
+                size="sm"
+                variant={infoSecState === key ? "outline" : "ghost"}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+          <div className="w-full flex-1">{infoSecs[infoSecState]}</div>
+        </div>
         <div className="flex h-max w-full items-center justify-between border border-red-500">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions
@@ -107,10 +135,10 @@ export const Dashboard = ({
                     >
                       <DropdownMenuItem
                         onClick={() =>
-                          setTransactionDialogState({
+                          setTxDialogState({
                             open: true,
                             mode: "edit",
-                            transaction,
+                            tx: transaction,
                             username,
                           })
                         }
@@ -119,7 +147,7 @@ export const Dashboard = ({
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
-                          setDeleteTransactionDialogState({
+                          setDeleteTxDialogState({
                             open: true,
                             _id: transaction._id,
                             username,
@@ -179,30 +207,30 @@ export const Dashboard = ({
         </div>
       </div>
       <TransactionDialog
-        open={transactionDialogState.open}
+        open={txDialogState.open}
         onOpenChange={() =>
-          setTransactionDialogState({
+          setTxDialogState({
             open: false,
             mode: "",
-            transaction: null,
+            tx: null,
             username: "",
           })
         }
-        mode={transactionDialogState.mode}
-        transaction={transactionDialogState.transaction}
+        mode={txDialogState.mode}
+        transaction={txDialogState.tx}
         username={username}
       />
       <DeleteTransactionDialog
-        open={deleteTransactionDialogState.open}
+        open={deleteTxDialogState.open}
         onOpenChange={() =>
-          setDeleteTransactionDialogState({
+          setDeleteTxDialogState({
             open: false,
             _id: "",
             username: "",
           })
         }
-        _id={deleteTransactionDialogState._id}
-        username={deleteTransactionDialogState.username}
+        _id={deleteTxDialogState._id}
+        username={deleteTxDialogState.username}
       />
     </>
   );
