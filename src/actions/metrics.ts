@@ -1,5 +1,5 @@
 // import { inspect } from "util";
-import { checkAuth } from "./auth";
+import { checkAuth } from "@/actions/auth";
 import { Transaction } from "@/types";
 import { getCollection } from "@/lib/mongo";
 import {
@@ -36,6 +36,16 @@ export const getMetrics = async () => {
     } = {
       expenses: {},
       incomes: {},
+    };
+    let analytics = {
+      totalIncome: 0,
+      totalExpense: 0,
+      savingsRate: 0,
+      monthlyAverages: {
+        income: 0,
+        expense: 0,
+        balance: 0,
+      },
     };
 
     transactions.forEach((tx) => {
@@ -76,6 +86,13 @@ export const getMetrics = async () => {
                   : 0
                 : 0;
 
+          balance =
+            tx.type === "expense"
+              ? balance - tx.amount
+              : tx.type === "income"
+                ? balance + tx.amount
+                : balance;
+
           chartData =
             tx.type === "expense"
               ? {
@@ -101,6 +118,19 @@ export const getMetrics = async () => {
                   }
                 : chartData;
 
+          analytics =
+            tx.type === "expense"
+              ? {
+                  ...analytics,
+                  totalExpense: analytics.totalExpense + tx.amount,
+                }
+              : tx.type === "income"
+                ? {
+                    ...analytics,
+                    totalIncome: analytics.totalIncome + tx.amount,
+                  }
+                : analytics;
+
           pointer =
             tx.recursionPeriod === "daily"
               ? incrementByDay(pointer, 1)
@@ -109,13 +139,6 @@ export const getMetrics = async () => {
                 : tx.recursionPeriod === "yearly"
                   ? incrementByYear(pointer, 1)
                   : new Date();
-
-          balance =
-            tx.type === "expense"
-              ? balance - tx.amount
-              : tx.type === "income"
-                ? balance + tx.amount
-                : balance;
         }
       } else if (txDate < currDate) {
         const month = txDate.getMonth() + 1;
@@ -144,6 +167,13 @@ export const getMetrics = async () => {
                 : 0
               : 0;
 
+        balance =
+          tx.type === "expense"
+            ? balance - tx.amount
+            : tx.type === "income"
+              ? balance + tx.amount
+              : balance;
+
         chartData =
           tx.type === "expense"
             ? {
@@ -169,22 +199,46 @@ export const getMetrics = async () => {
                 }
               : chartData;
 
-        balance =
+        analytics =
           tx.type === "expense"
-            ? balance - tx.amount
+            ? {
+                ...analytics,
+                totalExpense: analytics.totalExpense + tx.amount,
+              }
             : tx.type === "income"
-              ? balance + tx.amount
-              : balance;
+              ? {
+                  ...analytics,
+                  totalIncome: analytics.totalIncome + tx.amount,
+                }
+              : analytics;
       }
     });
 
+    const activeIncomeMonths = Object.entries(chartData.incomes).length;
+    const activeExpenseMonths = Object.entries(chartData.expenses).length;
+
+    analytics = {
+      ...analytics,
+      savingsRate:
+        ((analytics.totalIncome - analytics.totalExpense) /
+          analytics.totalIncome) *
+        100,
+      monthlyAverages: {
+        income: analytics.totalIncome / activeIncomeMonths,
+        expense: analytics.totalExpense / activeExpenseMonths,
+        balance:
+          (analytics.totalIncome - analytics.totalExpense) /
+          Math.max(activeIncomeMonths, activeExpenseMonths),
+      },
+    };
+
     // logging a object with full depth and colored output
-    // console.log(inspect({ balance, chartData }, false, null, true));
+    // console.log(inspect({ balance, chartData, analytics }, false, null, true));
 
     return {
       success: true,
-      message: "We're going somewhere...",
-      metrics: { balance, chartData },
+      message: "Metrics are generated.",
+      data: { balance, chartData, analytics },
     };
   } catch (error) {
     console.error("/metrics/getBalance error =>", error);

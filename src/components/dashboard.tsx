@@ -5,6 +5,7 @@ import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 import { toast } from "sonner";
 import { populateTransactions } from "@/actions/transactions";
+import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { Transaction } from "@/types";
 import { TransactionDialog } from "@/components/transaction-dialog";
@@ -20,9 +21,11 @@ import {
 export const Dashboard = ({
   username,
   transactions,
+  metrics,
 }: {
   username: string;
   transactions: Transaction[];
+  metrics: Awaited<ReturnType<typeof getMetrics>>;
 }) => {
   const { width } = useScreenSize();
   const [txDialogState, setTxDialogState] = useState<{
@@ -50,8 +53,12 @@ export const Dashboard = ({
   );
 
   const infoSecs = {
-    overview: <div className="h-full w-full">Balance and basic charts</div>,
-    analytics: <div className="h-full w-full">Analytics</div>,
+    overview: (
+      <div className="h-full w-full">{JSON.stringify(metrics?.data || {})}</div>
+    ),
+    analytics: (
+      <div className="h-full w-full">{JSON.stringify(metrics?.data || {})}</div>
+    ),
   };
 
   const infoSecNavButtons = [

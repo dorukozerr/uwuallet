@@ -62,8 +62,8 @@ export const DeleteTransactionDialog = ({
               <ul className="list-disc space-y-1.5 pl-4 text-left">
                 <li>
                   If this is a recurring transaction, and you want to stop it,
-                  use the Edit Transaction option instead to modify or stop
-                  future payments
+                  use the Edit Transaction option and enter end date instead of
+                  deleting this transaction
                 </li>
                 <li>
                   You can always add a new transaction for any past date if

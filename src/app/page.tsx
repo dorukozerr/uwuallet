@@ -14,11 +14,11 @@ const Page = async () => {
 
   const { transactions } = await getTransactions({ username });
 
-  const {} = await getMetrics();
+  const metrics = await getMetrics();
 
   const t = JSON.parse(JSON.stringify(transactions)) as Transaction[];
 
-  return <Dashboard username={username} transactions={t} />;
+  return <Dashboard username={username} transactions={t} metrics={metrics} />;
 };
 
 export default Page;
