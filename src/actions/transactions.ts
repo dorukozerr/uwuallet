@@ -6,6 +6,12 @@ import { z } from "zod";
 import { Transaction } from "@/types";
 import { clientPromise } from "@/lib/mongo";
 import { transactionFormSchema } from "@/lib/schemas";
+import { incrementByDay } from "@/lib/utils";
+import {
+  expenseCategories,
+  incomeCategories,
+  recursionPeriods,
+} from "@/lib/constants";
 
 // TODO - Update get collection func maybe, its always get transactions as collection anyway
 const getCollection = async (collectionName: string) =>
@@ -15,7 +21,10 @@ export const getTransactions = async ({ username }: { username: string }) => {
   try {
     const collection = await getCollection("transactions");
 
-    const transactions = await collection.find({ username }).toArray();
+    const transactions = await collection
+      .find({ username })
+      .sort({ date: -1 })
+      .toArray();
 
     return {
       success: true,
@@ -112,4 +121,70 @@ export const deleteTransaction = async ({
   }
 };
 
-export const populateTransactions = async () => {};
+export const populateTransactions = async () => {
+  try {
+    const collection = await getCollection("transactions");
+    const payload = [];
+    const startDate = new Date(2010, 0, 1);
+
+    payload.push({
+      title: "Initial Income Title",
+      description: "Initial Income Description",
+      amount: 50000,
+      type: "income",
+      category: "salary",
+      date: startDate,
+      isRecursive: true,
+      recursionPeriod: "monthly",
+      endDate: "",
+      username: "doruk",
+    });
+
+    for (let i = 0; i < 150; i++) {
+      const randomType = Math.random() > 0.15 ? "expense" : "income";
+      const randomCategory =
+        randomType === "expense"
+          ? expenseCategories[
+              Math.floor(Math.random() * expenseCategories.length)
+            ]
+          : incomeCategories[
+              Math.floor(Math.random() * incomeCategories.length)
+            ];
+      const amount = [500, 750, 1000, 1250, 1500][
+        Math.floor(Math.random() * 5)
+      ];
+      const date = incrementByDay(startDate, i * Math.ceil(Math.random() * 30));
+      const isRecursive = Math.random() < 0.05;
+      const recursionPeriod = isRecursive
+        ? Object.values(recursionPeriods)[Math.floor(Math.random() * 3)]
+        : null;
+      const endDate = "";
+
+      payload.push({
+        title: `${randomType} Title ${i + 1}`,
+        description: `${randomType} Description ${i + 1}`,
+        amount,
+        type: randomType,
+        category: randomCategory,
+        date: new Date(date),
+        isRecursive,
+        recursionPeriod,
+        endDate,
+        username: "doruk",
+      });
+    }
+
+    await collection.insertMany(payload);
+
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "Transactions populated successfully.",
+    };
+  } catch (error) {
+    console.error("/transactions/populateTransactions error =>", error);
+
+    return { success: false, message: "Unknown server error." };
+  }
+};

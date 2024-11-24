@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
+import { toast } from "sonner";
+import { populateTransactions } from "@/actions/transactions";
+import { useScreenSize } from "@/hooks/useScreenSize";
 import { Transaction } from "@/types";
 import { TransactionDialog } from "@/components/transaction-dialog";
 import { DeleteTransactionDialog } from "@/components/delete-transaction-dialog";
@@ -21,6 +24,7 @@ export const Dashboard = ({
   username: string;
   transactions: Transaction[];
 }) => {
+  const { width } = useScreenSize();
   const [transactionDialogState, setTransactionDialogState] = useState<{
     open: boolean;
     mode: "create" | "edit" | "";
@@ -39,6 +43,8 @@ export const Dashboard = ({
       username: "",
     });
 
+  console.log("transactions =>", transactions);
+
   return (
     <>
       <div className="mx-auto flex h-max w-full max-w-[1440px] flex-col items-start justify-start gap-4 p-4">
@@ -47,6 +53,14 @@ export const Dashboard = ({
             <span>Welcome {username}!</span>
           </h1>
           <div className="flex items-center justify-center gap-4">
+            <Button
+              onClick={async () => {
+                const res = await populateTransactions();
+                toast(res.message);
+              }}
+            >
+              Populate
+            </Button>
             <Button
               variant="outline"
               className="flex items-center justify-center gap-2"
@@ -88,7 +102,9 @@ export const Dashboard = ({
                         <MoreHorizontalIcon className="h-[1.2rem] w-[1.2rem]" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
+                    <DropdownMenuContent
+                      align={width >= 1024 ? "start" : "end"}
+                    >
                       <DropdownMenuItem
                         onClick={() =>
                           setTransactionDialogState({
@@ -114,7 +130,7 @@ export const Dashboard = ({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <div className="max-w-[100%] pr-12 lg:max-w-[50%]">
+                  <div className="w-full max-w-[100%] pr-12 lg:max-w-[50%] lg:pr-0">
                     <h3 className="text-sm font-bold capitalize sm:text-base">
                       {transaction.title}
                     </h3>
@@ -122,17 +138,16 @@ export const Dashboard = ({
                       {transaction.description}
                     </h4>
                   </div>
-                  <div className="hidden flex-1 lg:block" />
-                  <div className="flex w-full flex-row-reverse items-center justify-between gap-2 sm:justify-end sm:gap-4 lg:flex-row lg:justify-end">
+                  <div className="flex w-full flex-row-reverse items-center justify-between gap-2 sm:justify-end sm:gap-4 lg:flex-row">
                     <div className="w-max">
-                      <h6 className="text-sm font-bold sm:text-base">
-                        {transaction.category}
+                      <h6 className="text-sm font-bold capitalize sm:text-base">
+                        {transaction.category.replace(/([A-Z])/g, " $1").trim()}
                       </h6>
                       <div className="text-xs capitalize text-muted-foreground sm:text-sm">
                         {transaction.type}
                       </div>
                     </div>
-                    <div className="w-max">
+                    <div className="mr-auto w-max lg:mr-0">
                       <h6 className="text-sm font-bold sm:text-base">
                         {transaction.type === "expense" ? "-" : "+"}{" "}
                         {transaction.amount.toLocaleString("tr-TR")} $
