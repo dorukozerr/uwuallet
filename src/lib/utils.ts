@@ -17,7 +17,12 @@ export const incrementByYear = (date: Date, years: number) =>
 // it. I couldn't figure out how to do this with TS. Anyway I'm still
 // trying to rely as little as possible, also trying to understand
 // every block of code I get from AI. Reduce is my weak point, I hope
-// I get better at that someday. 🌸🐱
+// I get better at that someday. 🌸🐱 I prefer using AI as a teacher
+// instead of a code generation machine. When I explain situations
+// clearly and ask for explanations of parts I don't understand,
+// using AI is so much fun. Not sure why I'm writing these comments,
+// but here we are.
+
 const categoryToGroup = Object.entries(expenseGroups).reduce(
   (acc, [group, categories]) => {
     categories.forEach((category) => {
