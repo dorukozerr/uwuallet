@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Transaction } from "@/types";
 import { getCollection } from "@/lib/mongo";
 import { txFormSchema } from "@/lib/schemas";
-import { incrementByDay } from "@/lib/utils";
+import { incrementByMonth } from "@/lib/utils";
 import {
   expenseCategories,
   incomeCategories,
@@ -136,7 +136,7 @@ export const populateTransactions = async () => {
       username: "doruk",
     });
 
-    for (let i = 0; i < 150; i++) {
+    for (let i = 1; i < 150; i++) {
       const randomType = Math.random() > 0.15 ? "expense" : "income";
       const randomCategory =
         randomType === "expense"
@@ -146,10 +146,8 @@ export const populateTransactions = async () => {
           : incomeCategories[
               Math.floor(Math.random() * incomeCategories.length)
             ];
-      const amount = [500, 750, 1000, 1250, 1500][
-        Math.floor(Math.random() * 5)
-      ];
-      const date = incrementByDay(startDate, i * Math.ceil(Math.random() * 30));
+      const amount = [100, 200, 250, 500, 750][Math.floor(Math.random() * 5)];
+      const date = incrementByMonth(startDate, i);
       const isRecursive = Math.random() < 0.05;
       const recursionPeriod = isRecursive
         ? Object.values(recursionPeriods)[Math.floor(Math.random() * 3)]

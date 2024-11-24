@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
-import { toast } from "sonner";
-import { populateTransactions } from "@/actions/transactions";
+// import { populateTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { Transaction } from "@/types";
+import { InfoSection } from "@/components/dashboard/infoSection";
 import { TxDialog } from "@/components/dialogs/tx-dialog";
 import { DeleteTxDialog } from "@/components/dialogs/delete-tx-dialog";
 import { Button } from "@/components/ui/button";
@@ -48,23 +48,6 @@ export const Dashboard = ({
     _id: "",
     username: "",
   });
-  const [infoSecState, setInfoSecState] = useState<"overview" | "analytics">(
-    "overview"
-  );
-
-  const infoSecs = {
-    overview: (
-      <div className="h-full w-full">{JSON.stringify(metrics?.data || {})}</div>
-    ),
-    analytics: (
-      <div className="h-full w-full">{JSON.stringify(metrics?.data || {})}</div>
-    ),
-  };
-
-  const infoSecNavButtons = [
-    { label: "Overview", key: "overview" },
-    { label: "Analytics", key: "analytics" },
-  ] as const;
 
   return (
     <>
@@ -74,17 +57,20 @@ export const Dashboard = ({
             <span>Welcome {username}!</span>
           </h1>
           <div className="flex items-center justify-center gap-2">
-            <Button
-              onClick={async () => {
+            {/*
+                <Button
+                onClick={async () => {
                 const res = await populateTransactions();
                 toast(res.message);
-              }}
-            >
-              Populate
-            </Button>
+                }}
+                >
+                Populate
+                </Button>
+              */}
             <Button
               variant="outline"
               className="flex items-center justify-center gap-1"
+              size="sm"
               onClick={() =>
                 setTxDialogState({
                   open: true,
@@ -99,21 +85,7 @@ export const Dashboard = ({
             </Button>
           </div>
         </div>
-        <div className="flex h-[400px] w-full flex-col justify-start">
-          <div className="flex h-max w-full items-center justify-start gap-2 sm:gap-4">
-            {infoSecNavButtons.map(({ label, key }, buttonIndex) => (
-              <Button
-                key={`ìnfoSecButton-${buttonIndex}`}
-                onClick={() => setInfoSecState(key)}
-                size="sm"
-                variant={infoSecState === key ? "outline" : "ghost"}
-              >
-                {label}
-              </Button>
-            ))}
-          </div>
-          <div className="w-full flex-1">{infoSecs[infoSecState]}</div>
-        </div>
+        <InfoSection metrics={metrics} />
         <div className="flex h-max w-full items-center justify-between border border-red-500">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions

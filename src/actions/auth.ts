@@ -13,14 +13,14 @@ if (!JWT_SECRET) {
 }
 
 export const checkAuth = async () => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
+
+  if (!token) {
+    return { success: false };
+  }
+
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token");
-
-    if (!token) {
-      return { success: false };
-    }
-
     const verifiedToken = verify(token.value, JWT_SECRET);
 
     const username = (verifiedToken as { username: string }).username;

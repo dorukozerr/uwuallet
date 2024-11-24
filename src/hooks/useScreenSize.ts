@@ -9,6 +9,11 @@ export const useScreenSize = () => {
   });
 
   useEffect(() => {
+    setScreenSize({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
     const handleResize = () => {
       setScreenSize({
         width: window.innerWidth,

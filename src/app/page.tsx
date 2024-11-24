@@ -2,8 +2,8 @@ import { checkAuth } from "@/actions/auth";
 import { getTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
 import { Transaction } from "@/types";
-import { AuthForm } from "@/components/views/auth-form";
-import { Dashboard } from "@/components/views/dashboard";
+import { AuthForm } from "@/components/auth";
+import { Dashboard } from "@/components/dashboard";
 
 const Page = async () => {
   const { success: isAuthenticated, username } = await checkAuth();
