@@ -1,5 +1,7 @@
 import { checkAuth } from "./auth";
-// import { getCollection } from "@/lib/mongo";
+import { Transaction } from "@/types";
+import { getCollection } from "@/lib/mongo";
+import { incrementByDay, incrementByMonth, incrementByYear } from "@/lib/utils";
 
 export const getMetrics = async () => {
   try {
@@ -9,14 +11,58 @@ export const getMetrics = async () => {
       return { success: false, message: "Not authenticated." };
     }
 
-    // const collection = await getCollection("transactions");
-    // const transactions = await collection.find({ username }).toArray();
+    const collection = await getCollection("transactions");
+    const transactions = (await collection
+      .find({ username })
+      .toArray()) as unknown as Transaction[];
 
-    // calculate balance
-    // calculate chartData
-    // calculate analytics
+    let balance = 0;
 
-    return { success: true, message: "We're going somewhere...", metrics: {} };
+    transactions.forEach(
+      ({ amount, type, date, isRecursive, recursionPeriod, endDate }) => {
+        const transactionDate = new Date(date);
+        const currentDate = new Date();
+
+        if (isRecursive) {
+          const finalDate = endDate ? new Date(endDate) : currentDate;
+
+          if (transactionDate > currentDate) return;
+
+          let pointer = transactionDate;
+
+          while (pointer < finalDate && pointer < currentDate) {
+            pointer =
+              recursionPeriod === "daily"
+                ? incrementByDay(pointer, 1)
+                : recursionPeriod === "monthly"
+                  ? incrementByMonth(pointer, 1)
+                  : recursionPeriod === "yearly"
+                    ? incrementByYear(pointer, 1)
+                    : new Date();
+
+            balance =
+              type === "expense"
+                ? balance - amount
+                : type === "income"
+                  ? balance + amount
+                  : balance;
+          }
+        } else if (transactionDate < currentDate) {
+          balance =
+            type === "expense"
+              ? balance - amount
+              : type === "income"
+                ? balance + amount
+                : balance;
+        }
+      }
+    );
+
+    return {
+      success: true,
+      message: "We're going somewhere...",
+      metrics: { balance },
+    };
   } catch (error) {
     console.error("/metrics/getBalance error =>", error);
 
