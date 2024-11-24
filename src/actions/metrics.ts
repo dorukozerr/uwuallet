@@ -1,4 +1,3 @@
-// import { inspect } from "util";
 import { checkAuth } from "@/actions/auth";
 import { Transaction } from "@/types";
 import { getCollection } from "@/lib/mongo";
@@ -231,9 +230,6 @@ export const getMetrics = async () => {
           Math.max(activeIncomeMonths, activeExpenseMonths),
       },
     };
-
-    // logging a object with full depth and colored output
-    // console.log(inspect({ balance, chartData, analytics }, false, null, true));
 
     return {
       success: true,
