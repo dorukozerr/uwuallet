@@ -7,7 +7,7 @@ import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { Transaction } from "@/types";
-import { InfoSection } from "@/components/dashboard/infoSection";
+import { InfoSection } from "@/components/dashboard/info-section";
 import { TxDialog } from "@/components/dialogs/tx-dialog";
 import { DeleteTxDialog } from "@/components/dialogs/delete-tx-dialog";
 import { Button } from "@/components/ui/button";
