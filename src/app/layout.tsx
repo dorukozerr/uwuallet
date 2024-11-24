@@ -1,9 +1,7 @@
 import { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Rubik } from "next/font/google";
-import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/sonner";
-import { Header } from "@/components/header";
+import { Layout } from "@/components/layout";
 import "./globals.css";
 
 const rubik = Rubik({
@@ -14,7 +12,7 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: "Expense Tracker",
   description:
-    "Simple expense tracker application, made with nextjs, ts, and mongodb.",
+    "Expense tracker app, made with nextjs, ts, and mongodb.",
 };
 
 const RootLayout = ({
@@ -24,18 +22,7 @@ const RootLayout = ({
 }>) => (
   <html lang="en" suppressHydrationWarning>
     <body className={rubik.className}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        <main className="flex h-full w-full flex-col">
-          <Header />
-          <section className="w-full flex-1 overflow-auto">{children}</section>
-          <Toaster />
-        </main>
-      </ThemeProvider>
+      <Layout>{children}</Layout>
     </body>
   </html>
 );

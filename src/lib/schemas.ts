@@ -6,18 +6,18 @@ import {
   recursionPeriods,
 } from "@/lib/constants";
 
-export const authenticationFormSchema = z.object({
+export const authFormSchema = z.object({
   username: z
     .string()
-    .min(3, { message: "Username should be at least 3 character." })
-    .max(50, { message: "Username can be maximum 50 character." }),
+    .min(3, { message: "Username should be at least 3 character" })
+    .max(50, { message: "Username can be maximum 50 character" }),
   password: z
     .string()
-    .min(3, { message: "Password should be at least 3 character." })
-    .max(50, { message: "Password can be maximum 50 character." }),
+    .min(3, { message: "Password should be at least 3 character" })
+    .max(50, { message: "Password can be maximum 50 character" }),
 });
 
-export const transactionFormSchema = z
+export const txFormSchema = z
   .object({
     title: z
       .string()
@@ -53,5 +53,8 @@ export const transactionFormSchema = z
   .refine(
     ({ isRecursive, recursionPeriod }) =>
       isRecursive ? recursionPeriod !== undefined : true,
-    { message: "Please select recursion period", path: ["recursionPeriod"] }
+    {
+      message: "Please select how often this transaction repeats",
+      path: ["recursionPeriod"],
+    }
   );

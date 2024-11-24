@@ -14,7 +14,7 @@ import {
   ArrowUpDown,
 } from "lucide-react";
 import { createTransaction, updateTransaction } from "@/actions/transactions";
-import { transactionFormSchema } from "@/lib/schemas";
+import { txFormSchema } from "@/lib/schemas";
 import {
   initialTransactionData,
   expenseCategories,
@@ -57,7 +57,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 
-export const TransactionDialog = ({
+export const TxDialog = ({
   open,
   onOpenChange,
   mode,
@@ -71,10 +71,10 @@ export const TransactionDialog = ({
   username: string;
 }) => {
   const [isPending, setIsPending] = useState(false);
-  const form = useForm<z.infer<typeof transactionFormSchema>>({
-    resolver: zodResolver(transactionFormSchema),
+  const form = useForm<z.infer<typeof txFormSchema>>({
+    resolver: zodResolver(txFormSchema),
     defaultValues: initialTransactionData as Partial<
-      z.infer<typeof transactionFormSchema>
+      z.infer<typeof txFormSchema>
     >,
   });
 
@@ -83,17 +83,12 @@ export const TransactionDialog = ({
       form.reset(transaction);
     } else {
       form.reset(
-        initialTransactionData as Partial<z.infer<typeof transactionFormSchema>>
+        initialTransactionData as Partial<z.infer<typeof txFormSchema>>
       );
     }
   }, [mode, transaction, form]);
 
-  // console.log("transaction-dialog data =>", {
-  //   form: form.watch(),
-  //   transaction,
-  // });
-
-  const onSubmit = async (values: z.infer<typeof transactionFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof txFormSchema>) => {
     setIsPending(true);
 
     const res =

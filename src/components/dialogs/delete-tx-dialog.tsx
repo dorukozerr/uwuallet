@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 
-export const DeleteTransactionDialog = ({
+export const DeleteTxDialog = ({
   open,
   onOpenChange,
   _id,

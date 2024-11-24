@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { login, register } from "@/actions/auth";
-import { authenticationFormSchema } from "@/lib/schemas";
+import { authFormSchema } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -17,14 +18,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 
-export const AuthenticationForm = () => {
+export const AuthForm = () => {
   const [formType, setFormType] = useState<"login" | "register">("login");
   const [isPending, setIsPending] = useState(false);
 
-  const form = useForm<z.infer<typeof authenticationFormSchema>>({
-    resolver: zodResolver(authenticationFormSchema),
+  const form = useForm<z.infer<typeof authFormSchema>>({
+    resolver: zodResolver(authFormSchema),
     defaultValues: {
       username: "",
       password: "",
@@ -35,7 +35,7 @@ export const AuthenticationForm = () => {
     form.reset();
   }, [formType, form]);
 
-  const onSubmit = async (values: z.infer<typeof authenticationFormSchema>) => {
+  const onSubmit = async (values: z.infer<typeof authFormSchema>) => {
     setIsPending(true);
 
     const res =

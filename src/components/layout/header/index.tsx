@@ -1,7 +1,7 @@
 import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import { checkAuth } from "@/actions/auth";
-import { ThemeToggler } from "@/components/theme-toggler";
-import { LogoutButton } from "@/components/logout-button";
+import { ThemeToggler } from "@/components/theme/theme-toggler";
+import { LogoutButton } from "@/components/layout/header/logout-button";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

@@ -237,7 +237,7 @@ export const getMetrics = async () => {
       data: { balance, chartData, analytics },
     };
   } catch (error) {
-    console.error("/metrics/getBalance error =>", error);
+    console.error("/metrics/getMetrics error =>", error);
 
     return { success: false, message: "Unknown server error." };
   }

@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 import { z } from "zod";
 import { Transaction } from "@/types";
 import { getCollection } from "@/lib/mongo";
-import { transactionFormSchema } from "@/lib/schemas";
+import { txFormSchema } from "@/lib/schemas";
 import { incrementByDay } from "@/lib/utils";
 import {
   expenseCategories,
@@ -35,7 +35,7 @@ export const getTransactions = async ({ username }: { username: string }) => {
 };
 
 export const createTransaction = async (
-  payload: z.infer<typeof transactionFormSchema> & { username: string }
+  payload: z.infer<typeof txFormSchema> & { username: string }
 ) => {
   try {
     const collection = await getCollection("transactions");

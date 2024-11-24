@@ -8,9 +8,9 @@ import { populateTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { Transaction } from "@/types";
-import { TransactionDialog } from "@/components/transaction-dialog";
-import { DeleteTransactionDialog } from "@/components/delete-transaction-dialog";
-import { Button } from "./ui/button";
+import { TxDialog } from "@/components/dialogs/tx-dialog";
+import { DeleteTxDialog } from "@/components/dialogs/delete-tx-dialog";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -213,7 +213,7 @@ export const Dashboard = ({
           )}
         </div>
       </div>
-      <TransactionDialog
+      <TxDialog
         open={txDialogState.open}
         onOpenChange={() =>
           setTxDialogState({
@@ -227,7 +227,7 @@ export const Dashboard = ({
         transaction={txDialogState.tx}
         username={username}
       />
-      <DeleteTransactionDialog
+      <DeleteTxDialog
         open={deleteTxDialogState.open}
         onOpenChange={() =>
           setDeleteTxDialogState({

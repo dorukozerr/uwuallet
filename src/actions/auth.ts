@@ -42,6 +42,7 @@ export const register = async ({
 }) => {
   try {
     const collection = await getCollection("users");
+
     const existingUser = await collection.findOne({ username });
 
     if (existingUser) {
@@ -78,9 +79,9 @@ export const login = async ({
       return { success: false, message: "Invalid credentials." };
     }
 
-    const doesPasswordsMatch = await compare(password, user.password);
+    const isPwCorrect = await compare(password, user.password);
 
-    if (!doesPasswordsMatch) {
+    if (!isPwCorrect) {
       return { success: false, message: "Invalid credentials." };
     }
 

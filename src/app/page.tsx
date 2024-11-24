@@ -2,14 +2,14 @@ import { checkAuth } from "@/actions/auth";
 import { getTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
 import { Transaction } from "@/types";
-import { AuthenticationForm } from "@/components/authentication-form";
-import { Dashboard } from "@/components/dashboard";
+import { AuthForm } from "@/components/views/auth-form";
+import { Dashboard } from "@/components/views/dashboard";
 
 const Page = async () => {
   const { success: isAuthenticated, username } = await checkAuth();
 
   if (!isAuthenticated || !username) {
-    return <AuthenticationForm />;
+    return <AuthForm />;
   }
 
   const { transactions } = await getTransactions({ username });
@@ -18,7 +18,9 @@ const Page = async () => {
 
   const t = JSON.parse(JSON.stringify(transactions)) as Transaction[];
 
-  return <Dashboard username={username} transactions={t} metrics={metrics} />;
+  const pageData = { username, transactions: t, metrics };
+
+  return <Dashboard {...pageData} />;
 };
 
 export default Page;
