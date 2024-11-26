@@ -458,7 +458,6 @@ export const TxDialog = ({
                   <FormLabel className="flex items-center gap-2">
                     <RepeatIcon className="h-4 w-4" />
                     Recurring Transaction
-                    <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
                     <div className="flex items-start gap-4">

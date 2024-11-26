@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
+// import { toast } from "sonner";
 // import { populateTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
@@ -59,12 +60,12 @@ export const Dashboard = ({
           <div className="flex items-center justify-center gap-2">
             {/*
                 <Button
-                onClick={async () => {
-                const res = await populateTransactions();
-                toast(res.message);
-                }}
+                  onClick={async () => {
+                  const res = await populateTransactions();
+                  toast(res.message);
+                  }}
                 >
-                Populate
+                  Populate
                 </Button>
               */}
             <Button
@@ -86,7 +87,7 @@ export const Dashboard = ({
           </div>
         </div>
         <InfoSection metrics={metrics} />
-        <div className="flex h-max w-full items-center justify-between border border-red-500">
+        <div className="flex h-max w-full items-center justify-between">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions
           </h3>
