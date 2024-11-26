@@ -86,7 +86,10 @@ export const Dashboard = ({
             </Button>
           </div>
         </div>
-        <InfoSection metrics={metrics} />
+        {metrics.data?.analytics.totalExpense !== 0 ||
+        metrics.data.analytics.totalIncome !== 0 ? (
+          <InfoSection metrics={metrics} />
+        ) : null}
         <div className="flex h-max w-full items-center justify-between">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions

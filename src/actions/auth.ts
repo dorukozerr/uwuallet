@@ -16,7 +16,7 @@ export const checkAuth = async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get("token");
 
-  if (!token) {
+  if (!token || !token.value) {
     return { success: false };
   }
 

@@ -1,18 +1,13 @@
 "use client";
 
 import { useState, useMemo, CSSProperties } from "react";
-import {
-  // Bar,
-  // BarChart,
-  Pie,
-  PieChart,
-} from "recharts";
+import { Bar, BarChart, Pie, PieChart, XAxis } from "recharts";
 import { DateRange } from "react-day-picker";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { cn } from "@/lib/utils";
-import { expenseGroups, incomeCategories } from "@/lib/constants";
+import { expenseGroups } from "@/lib/constants";
 import {
   ChartConfig,
   ChartContainer,
@@ -51,11 +46,9 @@ export const InfoSection = ({
   const totalExpenses = metrics?.data?.analytics?.totalExpense || 0;
 
   const chartConfig = useMemo(() => {
-    const groups = [...Object.keys(expenseGroups), ...incomeCategories];
-
     const config: Record<string, { label: string; color: string }> = {};
 
-    groups.forEach(
+    Object.keys(expenseGroups).forEach(
       (group, index) =>
         (config[group] = {
           label: `${group.charAt(0).toUpperCase()}${group.slice(1)}`,
@@ -152,14 +145,16 @@ export const InfoSection = ({
   const barChartData = useMemo(() => {
     const { data } = metrics;
 
-    const sortRawData = (data: {
-      [key: string]: {
-        [key: string]: number;
-      };
-    }) =>
-      Object.entries(data).sort((a, b) => {
-        const [monthA, yearA] = a[0].split("-").map(Number);
-        const [monthB, yearB] = b[0].split("-").map(Number);
+    const sortData = (
+      data: {
+        date: string;
+        expenses: number;
+        incomes: number;
+      }[]
+    ) =>
+      data.sort((a, b) => {
+        const [monthA, yearA] = a.date.split("-").map(Number);
+        const [monthB, yearB] = b.date.split("-").map(Number);
 
         const dateA = new Date(yearA, monthA - 1);
         const dateB = new Date(yearB, monthB - 1);
@@ -168,25 +163,85 @@ export const InfoSection = ({
       });
 
     if (data) {
-      const chartData: {
-        [key: string]: number | string;
+      let chartData: {
+        date: string;
+        expenses: number;
+        incomes: number;
       }[] = [];
 
-      const sortedExpenses = sortRawData(data.chartData.expenses);
-      const sortedIncomes = sortRawData(data.chartData.incomes);
+      Object.entries(data.chartData.expenses).forEach((expense) => {
+        const dateStr = expense[0];
+        const matchedData = chartData.find((d) => d.date === dateStr);
 
-      console.log({ sortedExpenses, sortedIncomes });
+        const sum = Object.values(expense[1]).reduce(
+          (acc, curr) => acc + curr,
+          0
+        );
+
+        if (matchedData) {
+          matchedData.expenses = sum;
+        } else {
+          chartData.push({
+            date: dateStr,
+            incomes: 0,
+            expenses: sum,
+          });
+        }
+      });
+
+      Object.entries(data.chartData.incomes).forEach((income) => {
+        const dateStr = income[0];
+        const matchedData = chartData.find((d) => d.date === dateStr);
+
+        const sum = Object.values(income[1]).reduce(
+          (acc, curr) => acc + curr,
+          0
+        );
+
+        if (matchedData) {
+          matchedData.incomes = sum;
+        } else {
+          chartData.push({
+            date: dateStr,
+            incomes: sum,
+            expenses: 0,
+          });
+        }
+      });
+
+      if (date?.from || date?.to) {
+        const from = date.from;
+        const to = date.to;
+
+        if (from && !to) {
+          chartData = chartData.filter(
+            (data: { date: string }) =>
+              from <
+              new Date(
+                Number(data.date.split("-")[1]),
+                Number(data.date.split("-")[0])
+              )
+          );
+        } else if (from && to) {
+          chartData = chartData.filter(
+            (data: { date: string }) =>
+              from <
+                new Date(
+                  Number(data.date.split("-")[1]),
+                  Number(data.date.split("-")[0])
+                ) &&
+              to >
+                new Date(
+                  Number(data.date.split("-")[1]),
+                  Number(data.date.split("-")[0])
+                )
+          );
+        }
+      }
+
+      return sortData(chartData);
     }
   }, [date, metrics]);
-
-  // const chartData = [
-  //   { month: "January", desktop: 186, mobile: 80 },
-  //   { month: "February", desktop: 305, mobile: 200 },
-  //   { month: "March", desktop: 237, mobile: 120 },
-  //   { month: "April", desktop: 73, mobile: 190 },
-  //   { month: "May", desktop: 209, mobile: 130 },
-  //   { month: "June", desktop: 214, mobile: 140 },
-  // ];
 
   return (
     <div className="flex h-[1200px] w-full flex-col justify-start md:h-[600px] lg:h-[500px]">
@@ -235,7 +290,7 @@ export const InfoSection = ({
       <div className="w-full flex-1 overflow-auto">
         <div className="flex h-full w-full flex-col items-start justify-start lg:flex-row">
           <div className="h-full w-full flex-[0.4] p-2 xl:p-4">
-            <div className="flex h-full w-full flex-col items-start justify-start gap-4 rounded-md border border-border p-4 md:flex-row lg:flex-col">
+            <div className="flex h-full w-full flex-col items-start justify-start gap-4 rounded-md border border-border bg-muted/50 p-4 md:flex-row lg:flex-col">
               <div className="w-max space-y-1">
                 <h3 className="text-base font-bold leading-tight md:text-lg">
                   Current Balance
@@ -302,7 +357,7 @@ export const InfoSection = ({
             <div className="h-full w-full flex-1 overflow-auto p-2 xl:p-4">
               <ChartContainer
                 config={chartConfig}
-                className="h-full w-full rounded-md border border-border"
+                className="h-full w-full rounded-md border border-border bg-muted/50"
               >
                 <PieChart>
                   <Pie
@@ -344,43 +399,22 @@ export const InfoSection = ({
             <div className="h-full w-full flex-1 overflow-auto p-2 xl:p-4">
               <ChartContainer
                 config={chartConfig}
-                className="h-full w-full rounded-md border border-border"
+                className="h-full w-full rounded-md border border-border bg-muted/50"
               >
-                <PieChart>
-                  <Pie
-                    data={pieChartData}
-                    dataKey="totalAmount"
-                    nameKey="group"
+                <BarChart accessibilityLayer data={barChartData || []}>
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
                   />
+                  <Bar dataKey="incomes" fill="#ff5733" />
+                  <Bar dataKey="expenses" fill="#FFBF00" />
                   <ChartTooltip
                     cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        hideLabel
-                        formatter={(value, name) => (
-                          <div className="h-max-w-max flex items-center justify-start gap-2">
-                            <div
-                              className="max-h-2 min-h-2 min-w-2 max-w-2 rounded-full bg-[--color-bg]"
-                              style={
-                                {
-                                  "--color-bg": `var(--color-${name})`,
-                                } as CSSProperties
-                              }
-                            ></div>
-                            <span className="capitalize">{name}</span>
-                            <span className="font-bold">
-                              {value.toLocaleString("tr-TR")} $
-                            </span>
-                          </div>
-                        )}
-                      />
-                    }
+                    content={<ChartTooltipContent indicator="dashed" />}
                   />
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey="group" />}
-                    className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-                  />
-                </PieChart>
+                </BarChart>
               </ChartContainer>
             </div>
           </div>
