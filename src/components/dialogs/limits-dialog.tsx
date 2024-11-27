@@ -65,9 +65,9 @@ export const LimitsDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex h-[min(600px,95vh)] max-w-[min(800px,95vw)] flex-col rounded-md p-4 sm:p-6">
-        <DialogHeader className="">
+        <DialogHeader>
           <DialogTitle>Remove This Transaction</DialogTitle>
-          <DialogDescription className="">
+          <DialogDescription>
             Configure your spending limits from here. 0 means no limit for that
             particular group.
           </DialogDescription>
@@ -103,7 +103,7 @@ export const LimitsDialog = ({
             <button className="hidden" type="submit"></button>
           </form>
         </Form>
-        <DialogFooter className="">
+        <DialogFooter>
           <Button onClick={onOpenChange} variant="outline">
             Close
           </Button>

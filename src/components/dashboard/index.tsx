@@ -75,15 +75,15 @@ export const Dashboard = ({
           </h1>
           <div className="hidden items-center justify-center gap-4 sm:flex">
             {/*
-            <Button
-              onClick={async () => {
+                <Button
+                onClick={async () => {
                 const res = await populateTransactions();
                 toast(res.message);
-              }}
-            >
-              Populate
-            </Button>
-            */}
+                }}
+                >
+                Populate
+                </Button>
+              */}
             <Button
               variant="outline"
               className="flex items-center justify-center gap-1"

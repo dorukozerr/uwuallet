@@ -45,7 +45,7 @@ export const WarningDialog = ({
             over by a total of ${totalExcess.toLocaleString("tr-TR")}
           </DialogDescription>
         </DialogHeader>
-        <div className="h-full w-full space-y-4 overflow-auto py-4">
+        <div className="h-full w-full space-y-4 overflow-auto border-b border-t border-border py-4">
           {exceededLimits.map((exceededLimit, index) => {
             const excess = exceededLimit.amount - exceededLimit.limit;
             const percentageOver = (

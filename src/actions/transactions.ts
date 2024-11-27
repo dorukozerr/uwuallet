@@ -146,7 +146,7 @@ export const populateTransactions = async () => {
 
     const collection = await getCollection("transactions");
     const payload = [];
-    const startDate = new Date(2010, 0, 1);
+    const startDate = new Date(2018, 0, 1);
 
     payload.push({
       title: "Initial Income Title",
@@ -161,7 +161,7 @@ export const populateTransactions = async () => {
       username: "doruk",
     });
 
-    for (let i = 1; i < 150; i++) {
+    for (let i = 1; i < 50; i++) {
       const randomType = Math.random() > 0.15 ? "expense" : "income";
       const randomCategory =
         randomType === "expense"
@@ -171,7 +171,9 @@ export const populateTransactions = async () => {
           : incomeCategories[
               Math.floor(Math.random() * incomeCategories.length)
             ];
-      const amount = [100, 200, 250, 500, 750][Math.floor(Math.random() * 5)];
+      const amount = [1000, 1500, 2000, 2500, 3250][
+        Math.floor(Math.random() * 5)
+      ];
       const date = incrementByMonth(startDate, i);
       const isRecursive = Math.random() < 0.05;
       const recursionPeriod = isRecursive

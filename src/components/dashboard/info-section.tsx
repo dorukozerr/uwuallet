@@ -4,13 +4,14 @@ import { useState, useMemo, CSSProperties } from "react";
 import { Bar, BarChart, Pie, PieChart, XAxis } from "recharts";
 import { DateRange } from "react-day-picker";
 import { z } from "zod";
-import { Calendar as CalendarIcon, AlertCircle } from "lucide-react";
+import { Calendar as CalendarIcon, AlertCircle, Sparkles } from "lucide-react";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
 import { limitsFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { expenseGroups } from "@/lib/constants";
 import { WarningDialog } from "@/components/dialogs/warning-dialog";
+import { AISummaryDialog } from "@/components/dialogs/ai-summary-dialog";
 import {
   ChartConfig,
   ChartContainer,
@@ -42,6 +43,11 @@ export const InfoSection = ({
   const [warningDialogState, setWarningDialogState] = useState<{
     open: boolean;
   }>({ open: false });
+  const [aiSummaryDialogState, setAISummaryDialogState] = useState<{
+    open: boolean;
+  }>({
+    open: false,
+  });
 
   const monthlyAvgBalance = metrics?.analytics?.monthlyAverages?.balance || 0;
   const monthlyAvgIncome = metrics?.analytics?.monthlyAverages?.income || 0;
@@ -322,7 +328,7 @@ export const InfoSection = ({
   }, [metrics, limits]);
 
   return (
-    <div className="flex h-[1200px] w-full flex-col justify-start md:h-[900px] lg:h-[500px] gap-4">
+    <div className="flex h-[1200px] w-full flex-col justify-start gap-4 md:h-[900px] lg:h-[500px]">
       <div className="flex h-max w-full items-center justify-end gap-4">
         {limitsReport.length ? (
           <Button
@@ -333,6 +339,14 @@ export const InfoSection = ({
             <AlertCircle className="h-[1.2rem] w-[1.2rem]" />
           </Button>
         ) : null}
+        <Button
+          variant="outline"
+          className="flex items-center justify-center gap-2"
+          onClick={() => setAISummaryDialogState({ open: true })}
+        >
+          <Sparkles className="h-[1.2rem] w-[1.2rem]" />
+          <span>AI Summary</span>
+        </Button>
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -373,7 +387,7 @@ export const InfoSection = ({
         </Popover>
       </div>
       <div className="w-full flex-1 overflow-auto">
-        <div className="flex h-full w-full flex-col items-start justify-start lg:flex-row gap-4">
+        <div className="flex h-full w-full flex-col items-start justify-start gap-4 lg:flex-row">
           <div className="h-full w-full flex-[0.4]">
             <div className="flex h-full w-full flex-col items-start justify-start gap-4 rounded-md border border-border bg-muted/50 p-4">
               <div className="w-max space-y-1">
@@ -438,7 +452,7 @@ export const InfoSection = ({
               </div>
             </div>
           </div>
-          <div className="flex h-full w-full flex-1 flex-col items-start justify-start overflow-auto md:flex-row lg:w-auto gap-4">
+          <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-4 overflow-auto md:flex-row lg:w-auto">
             <div className="h-full w-full flex-1 overflow-auto">
               <ChartContainer
                 config={chartConfig}
@@ -509,6 +523,12 @@ export const InfoSection = ({
         open={warningDialogState.open}
         onOpenChange={() => setWarningDialogState({ open: false })}
         exceededLimits={limitsReport}
+      />
+      <AISummaryDialog
+        open={aiSummaryDialogState.open}
+        onOpenChange={() => setAISummaryDialogState({ open: false })}
+        metrics={metrics}
+        limitsReport={limitsReport}
       />
     </div>
   );
