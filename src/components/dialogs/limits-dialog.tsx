@@ -1,6 +1,9 @@
+import { useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { updateLimits } from "@/actions/limits";
 import { limitsFormSchema } from "@/lib/schemas";
 import {
   limitsFormInitialValues,
@@ -29,24 +32,39 @@ import { Input } from "@/components/ui/input";
 export const LimitsDialog = ({
   open,
   onOpenChange,
-  username,
+  limits,
 }: {
   open: boolean;
   onOpenChange: () => void;
-  username: string;
+  limits: (z.infer<typeof limitsFormSchema> & { username: string }) | null;
 }) => {
   const form = useForm<z.infer<typeof limitsFormSchema>>({
     resolver: zodResolver(limitsFormSchema),
     defaultValues: limitsFormInitialValues,
   });
 
-  const onSubmit = (values: z.infer<typeof limitsFormSchema>) => {
-    console.warn("values =>", values, username);
+  useEffect(() => {
+    if (limits) {
+      form.reset(limits);
+    } else {
+      form.reset(limitsFormInitialValues);
+    }
+  }, [limits, form]);
+
+  const onSubmit = async (values: z.infer<typeof limitsFormSchema>) => {
+    const res = await updateLimits({
+      username: limits?.username || "",
+      limits: values,
+    });
+
+    if (res.success) onOpenChange();
+
+    toast(res.message);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex h-[min(650px,95vh)] max-w-[min(800px,95vw)] flex-col rounded-md p-4 sm:p-6">
+      <DialogContent className="flex h-[min(600px,95vh)] max-w-[min(800px,95vw)] flex-col rounded-md p-4 sm:p-6">
         <DialogHeader className="">
           <DialogTitle>Remove This Transaction</DialogTitle>
           <DialogDescription className="">
@@ -61,7 +79,7 @@ export const LimitsDialog = ({
           >
             {Object.keys(limitsFormInitialValues).map((fieldName, index) => (
               <FormField
-                key={`limitConfigFormField-${index}`}
+                key={`limitConfigurationFormField-${index}`}
                 control={form.control}
                 name={fieldName as keyof typeof limitsFormInitialValues}
                 render={({ field }) => (

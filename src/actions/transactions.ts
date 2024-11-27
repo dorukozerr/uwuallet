@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
+import { checkAuth } from "@/actions/auth";
 import { Transaction } from "@/types";
 import { getCollection } from "@/lib/mongo";
 import { txFormSchema } from "@/lib/schemas";
@@ -38,6 +39,12 @@ export const createTransaction = async (
   payload: z.infer<typeof txFormSchema> & { username: string }
 ) => {
   try {
+    const { success: isAuthenticated } = await checkAuth();
+
+    if (!isAuthenticated) {
+      return { success: false, message: "Not Authorized." };
+    }
+
     const collection = await getCollection("transactions");
 
     const res = await collection.insertOne({
@@ -65,6 +72,12 @@ export const updateTransaction = async ({
   ...newData
 }: Transaction) => {
   try {
+    const { success: isAuthenticated } = await checkAuth();
+
+    if (!isAuthenticated) {
+      return { success: false, message: "Not Authorized." };
+    }
+
     const collection = await getCollection("transactions");
 
     const res = await collection.findOneAndUpdate(
@@ -98,6 +111,12 @@ export const deleteTransaction = async ({
   username: string;
 }) => {
   try {
+    const { success: isAuthenticated } = await checkAuth();
+
+    if (!isAuthenticated) {
+      return { success: false, message: "Not Authorized." };
+    }
+
     const collection = await getCollection("transactions");
 
     const res = await collection.findOneAndDelete({
@@ -119,6 +138,12 @@ export const deleteTransaction = async ({
 
 export const populateTransactions = async () => {
   try {
+    const { success: isAuthenticated } = await checkAuth();
+
+    if (!isAuthenticated) {
+      return { success: false, message: "Not Authorized." };
+    }
+
     const collection = await getCollection("transactions");
     const payload = [];
     const startDate = new Date(2010, 0, 1);

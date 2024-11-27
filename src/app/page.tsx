@@ -1,6 +1,9 @@
+import { z } from "zod";
 import { checkAuth } from "@/actions/auth";
 import { getTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
+import { getLimits } from "@/actions/limits";
+import { limitsFormSchema } from "@/lib/schemas";
 import { Transaction } from "@/types";
 import { AuthForm } from "@/components/auth";
 import { Dashboard } from "@/components/dashboard";
@@ -13,12 +16,19 @@ const Page = async () => {
   }
 
   const { transactions } = await getTransactions({ username });
+  const { data: metrics } = await getMetrics();
+  const { limits } = await getLimits({ username });
 
-  const metrics = await getMetrics();
-
-  const t = JSON.parse(JSON.stringify(transactions)) as Transaction[];
-
-  const pageData = { username, transactions: t, metrics };
+  const pageData = {
+    username,
+    transactions: JSON.parse(JSON.stringify(transactions)) as Transaction[],
+    metrics,
+    limits: JSON.parse(JSON.stringify(limits)) as unknown as z.infer<
+      typeof limitsFormSchema
+    > & {
+      username: string;
+    },
+  };
 
   return <Dashboard {...pageData} />;
 };

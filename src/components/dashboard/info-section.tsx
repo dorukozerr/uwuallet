@@ -27,7 +27,7 @@ import { Calendar } from "@/components/ui/calendar";
 export const InfoSection = ({
   metrics,
 }: {
-  metrics: Awaited<ReturnType<typeof getMetrics>>;
+  metrics: Awaited<ReturnType<typeof getMetrics>>["data"];
 }) => {
   const { width } = useScreenSize();
   const [date, setDate] = useState<DateRange | undefined>({
@@ -35,15 +35,12 @@ export const InfoSection = ({
     to: undefined,
   });
 
-  const monthlyAvgBalance =
-    metrics?.data?.analytics?.monthlyAverages?.balance || 0;
-  const monthlyAvgIncome =
-    metrics?.data?.analytics?.monthlyAverages?.income || 0;
-  const monthlyAvgExpense =
-    metrics?.data?.analytics?.monthlyAverages?.expense || 0;
-  const savingRate = metrics?.data?.analytics?.savingsRate || 0;
-  const totalIncomes = metrics?.data?.analytics?.totalIncome || 0;
-  const totalExpenses = metrics?.data?.analytics?.totalExpense || 0;
+  const monthlyAvgBalance = metrics?.analytics?.monthlyAverages?.balance || 0;
+  const monthlyAvgIncome = metrics?.analytics?.monthlyAverages?.income || 0;
+  const monthlyAvgExpense = metrics?.analytics?.monthlyAverages?.expense || 0;
+  const savingRate = metrics?.analytics?.savingsRate || 0;
+  const totalIncomes = metrics?.analytics?.totalIncome || 0;
+  const totalExpenses = metrics?.analytics?.totalExpense || 0;
 
   const chartConfig = useMemo(() => {
     const config: Record<string, { label: string; color: string }> = {};
@@ -60,16 +57,14 @@ export const InfoSection = ({
   }, []) satisfies ChartConfig;
 
   const pieChartData = useMemo(() => {
-    const { data } = metrics;
-
-    if (data) {
+    if (metrics) {
       const chartData: {
         group: string;
         totalAmount: number;
         fill: string;
       }[] = [];
 
-      Object.entries(data.chartData.expenses).forEach(([key, value]) => {
+      Object.entries(metrics.chartData.expenses).forEach(([key, value]) => {
         const expenseDateArr: (string | number)[] = key.split("-");
 
         expenseDateArr[0] = Number(expenseDateArr[0]) - 1;
@@ -143,8 +138,6 @@ export const InfoSection = ({
   }, [date, metrics]);
 
   const barChartData = useMemo(() => {
-    const { data } = metrics;
-
     const sortData = (
       data: {
         date: string;
@@ -162,14 +155,14 @@ export const InfoSection = ({
         return dateA.getTime() - dateB.getTime();
       });
 
-    if (data) {
+    if (metrics) {
       let chartData: {
         date: string;
         expenses: number;
         incomes: number;
       }[] = [];
 
-      Object.entries(data.chartData.expenses).forEach((expense) => {
+      Object.entries(metrics.chartData.expenses).forEach((expense) => {
         const dateStr = expense[0];
         const matchedData = chartData.find((d) => d.date === dateStr);
 
@@ -189,7 +182,7 @@ export const InfoSection = ({
         }
       });
 
-      Object.entries(data.chartData.incomes).forEach((income) => {
+      Object.entries(metrics.chartData.incomes).forEach((income) => {
         const dateStr = income[0];
         const matchedData = chartData.find((d) => d.date === dateStr);
 
@@ -295,7 +288,7 @@ export const InfoSection = ({
                   Current Balance
                 </h3>
                 <h4 className="w-max text-sm md:text-base">
-                  {metrics.data?.balance.toLocaleString("tr-TR") || 0} $
+                  {metrics?.balance.toLocaleString("tr-TR") || 0} $
                 </h4>
               </div>
               <div className="w-max space-y-1">

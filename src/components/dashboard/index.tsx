@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { z } from "zod";
 import { MoreHorizontalIcon, PlusIcon, Bolt } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 // import { toast } from "sonner";
 // import { populateTransactions } from "@/actions/transactions";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
+import { limitsFormSchema } from "@/lib/schemas";
 import { Transaction } from "@/types";
 import { InfoSection } from "@/components/dashboard/info-section";
 import { TxDialog } from "@/components/dialogs/tx-dialog";
@@ -24,10 +26,12 @@ export const Dashboard = ({
   username,
   transactions,
   metrics,
+  limits,
 }: {
   username: string;
   transactions: Transaction[];
-  metrics: Awaited<ReturnType<typeof getMetrics>>;
+  metrics: Awaited<ReturnType<typeof getMetrics>>["data"];
+  limits: z.infer<typeof limitsFormSchema> & { username: string };
 }) => {
   const { width } = useScreenSize();
   const [txDialogState, setTxDialogState] = useState<{
@@ -52,15 +56,15 @@ export const Dashboard = ({
   });
   const [limitsDialogState, setLimitsDialogState] = useState<{
     open: boolean;
-    username: string;
+    limits: z.infer<typeof limitsFormSchema> | null;
   }>({
     open: false,
-    username: "",
+    limits: null,
   });
 
   const doesMetricsExists =
-    metrics.data?.analytics.totalExpense !== 0 ||
-    metrics.data.analytics.totalIncome !== 0;
+    metrics?.analytics.totalExpense !== 0 ||
+    metrics?.analytics.totalIncome !== 0;
 
   return (
     <>
@@ -98,7 +102,7 @@ export const Dashboard = ({
             <Button
               className="flex items-center justify-center gap-1"
               variant="outline"
-              onClick={() => setLimitsDialogState({ open: true, username })}
+              onClick={() => setLimitsDialogState({ open: true, limits })}
             >
               <Bolt className="h-[1.2rem] w-[1.2rem]" />
               <span>Configure Limits</span>
@@ -123,7 +127,7 @@ export const Dashboard = ({
                 <span>Add Transaction</span>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => setLimitsDialogState({ open: true, username })}
+                onClick={() => setLimitsDialogState({ open: true, limits })}
               >
                 <Bolt className="h-[1.2rem] w-[1.2rem]" />
                 <span>Configure Limits</span>
@@ -262,10 +266,11 @@ export const Dashboard = ({
         onOpenChange={() =>
           setLimitsDialogState({
             open: false,
-            username: "",
+            limits: null,
           })
         }
         username={limitsDialogState.username}
+        limits={limitsDialogState.limits}
       />
     </>
   );

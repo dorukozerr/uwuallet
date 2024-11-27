@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { hash, compare } from "bcryptjs";
 import { verify, sign } from "jsonwebtoken";
+import { createLimits } from "@/actions/limits";
 import { getCollection } from "@/lib/mongo";
 
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -56,6 +57,8 @@ export const register = async ({
       password: hashedPassword,
       createdAt: new Date(),
     });
+
+    await createLimits({ username });
 
     return login({ username, password });
   } catch (error) {
