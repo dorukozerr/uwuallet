@@ -125,7 +125,9 @@ export const Dashboard = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {doesMetricsExists ? <InfoSection {...{ metrics, limits }} /> : null}
+        {doesMetricsExists ? (
+          <InfoSection {...{ metrics, limits, transactions }} />
+        ) : null}
         <div className="flex h-max w-full items-center justify-between">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions

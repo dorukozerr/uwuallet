@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useMemo, CSSProperties } from "react";
-import { Bar, BarChart, Pie, PieChart, XAxis } from "recharts";
+import { Area, AreaChart, Pie, PieChart, XAxis, YAxis } from "recharts";
 import { DateRange } from "react-day-picker";
 import { z } from "zod";
 import { Calendar as CalendarIcon, AlertCircle, Sparkles } from "lucide-react";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
+import { Transaction } from "@/types";
 import { limitsFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { expenseGroups } from "@/lib/constants";
@@ -31,9 +32,11 @@ import { Calendar } from "@/components/ui/calendar";
 export const InfoSection = ({
   metrics,
   limits,
+  transactions,
 }: {
   metrics: Awaited<ReturnType<typeof getMetrics>>["metrics"];
   limits: z.infer<typeof limitsFormSchema> | null;
+  transactions: Transaction[];
 }) => {
   const { width } = useScreenSize();
   const [date, setDate] = useState<DateRange | undefined>({
@@ -56,7 +59,18 @@ export const InfoSection = ({
   const totalIncomes = metrics?.analytics?.totalIncome || 0;
   const totalExpenses = metrics?.analytics?.totalExpense || 0;
 
-  const chartConfig = useMemo(() => {
+  const areaChartConfig = {
+    expenses: {
+      label: "Expenses",
+      color: "hsl(var(--chart-9))",
+    },
+    incomes: {
+      label: "Incomes",
+      color: "hsl(var(--chart-10))",
+    },
+  } satisfies ChartConfig;
+
+  const pieChartConfig = useMemo(() => {
     const config: Record<string, { label: string; color: string }> = {};
 
     Object.keys(expenseGroups).forEach(
@@ -151,7 +165,7 @@ export const InfoSection = ({
     }
   }, [date, metrics]);
 
-  const barChartData = useMemo(() => {
+  const areaChartData = useMemo(() => {
     const sortData = (
       data: {
         date: string;
@@ -329,7 +343,7 @@ export const InfoSection = ({
 
   return (
     <div className="flex h-[1200px] w-full flex-col justify-start gap-4 md:h-[900px] lg:h-[500px]">
-      <div className="flex h-max w-full items-center justify-end gap-4">
+      <div className="flex h-max w-full flex-wrap items-center justify-end gap-4">
         {limitsReport.length ? (
           <Button
             variant="destructive"
@@ -357,7 +371,7 @@ export const InfoSection = ({
               variant="outline"
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              <span className="hidden sm:block">
+              <span>
                 {date?.from ? (
                   date.to ? (
                     <>
@@ -371,7 +385,6 @@ export const InfoSection = ({
                   <span>Filter Chart Data</span>
                 )}
               </span>
-              <span className="block sm:hidden">Filter Chart Data</span>
             </Button>
           </PopoverTrigger>
           <PopoverContent align="end" className="w-auto p-0">
@@ -454,81 +467,144 @@ export const InfoSection = ({
           </div>
           <div className="flex h-full w-full flex-1 flex-col items-start justify-start gap-4 overflow-auto md:flex-row lg:w-auto">
             <div className="h-full w-full flex-1 overflow-auto">
-              <ChartContainer
-                config={chartConfig}
-                className="h-full w-full rounded-md border border-border bg-muted/50"
-              >
-                <PieChart accessibilityLayer>
-                  <Pie
-                    data={pieChartData}
-                    dataKey="totalAmount"
-                    nameKey="group"
-                  />
-                  <ChartTooltip
-                    cursor={false}
-                    content={
-                      <ChartTooltipContent
-                        hideLabel
-                        formatter={(value, name) => (
-                          <div className="h-max-w-max flex items-center justify-start gap-2">
-                            <div
-                              className="max-h-2 min-h-2 min-w-2 max-w-2 rounded-full bg-[--color-bg]"
-                              style={
-                                {
-                                  "--color-bg": `var(--color-${name})`,
-                                } as CSSProperties
-                              }
-                            ></div>
-                            <span className="capitalize">{name}</span>
-                            <span className="font-bold">
-                              {value.toLocaleString("tr-TR")} $
-                            </span>
-                          </div>
-                        )}
-                      />
-                    }
-                  />
-                  <ChartLegend
-                    content={<ChartLegendContent nameKey="group" />}
-                    className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-                  />
-                </PieChart>
-              </ChartContainer>
+              {pieChartData.length ? (
+                <ChartContainer
+                  config={pieChartConfig}
+                  className="h-full w-full rounded-md border border-border bg-muted/50"
+                >
+                  <PieChart accessibilityLayer>
+                    <Pie
+                      data={pieChartData}
+                      dataKey="totalAmount"
+                      nameKey="group"
+                      fillOpacity={0.4}
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={
+                        <ChartTooltipContent
+                          hideLabel
+                          formatter={(value, name) => (
+                            <div className="h-max-w-max flex items-center justify-start gap-2">
+                              <div
+                                className="max-h-2 min-h-2 min-w-2 max-w-2 rounded-full bg-[--color-bg]"
+                                style={
+                                  {
+                                    "--color-bg": `var(--color-${name})`,
+                                  } as CSSProperties
+                                }
+                              ></div>
+                              <span className="capitalize">{name}</span>
+                              <span className="font-bold">
+                                {value.toLocaleString("tr-TR")} $
+                              </span>
+                            </div>
+                          )}
+                        />
+                      }
+                    />
+                    <ChartLegend
+                      content={<ChartLegendContent nameKey="group" />}
+                      className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
+                    />
+                  </PieChart>
+                </ChartContainer>
+              ) : (
+                <div className="roundedded-md flex h-full w-full items-center justify-center border border-border">
+                  <span className="max-w-[80vw] text-center">
+                    No data found for expenses pie chart.
+                  </span>
+                </div>
+              )}
             </div>
             <div className="h-full w-full flex-1 overflow-auto">
-              <ChartContainer
-                config={chartConfig}
-                className="h-full w-full rounded-md border border-border bg-muted/50"
-              >
-                <BarChart accessibilityLayer data={barChartData || []}>
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <Bar dataKey="incomes" fill="#ff5733" />
-                  <Bar dataKey="expenses" fill="#FFBF00" />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dashed" />}
-                  />
-                </BarChart>
-              </ChartContainer>
+              {areaChartData?.length ? (
+                <ChartContainer
+                  config={areaChartConfig}
+                  className="h-full w-full rounded-md border border-border bg-muted/50 p-4"
+                >
+                  <AreaChart accessibilityLayer data={areaChartData || []}>
+                    <YAxis />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={0}
+                    />
+                    <Area
+                      dataKey="incomes"
+                      fill="var(--color-incomes)"
+                      type="natural"
+                      fillOpacity={0.4}
+                      stroke="var(--color-incomes)"
+                    />
+                    <Area
+                      dataKey="expenses"
+                      fill="var(--color-expenses)"
+                      type="natural"
+                      fillOpacity={0.4}
+                      stroke="var(--color-expenses)"
+                    />
+                    <ChartTooltip
+                      cursor={false}
+                      content={
+                        <ChartTooltipContent
+                          hideLabel
+                          formatter={(value, name, payload, index) => (
+                            <div className="space-y-2">
+                              {index === 0 ? (
+                                <span className="font-bold">
+                                  {payload.payload.date}
+                                </span>
+                              ) : null}
+                              <div className="h-max-w-max flex items-center justify-start gap-2">
+                                <div
+                                  className="max-h-2 min-h-2 min-w-2 max-w-2 rounded-full bg-[--color-bg]"
+                                  style={
+                                    {
+                                      "--color-bg": `var(--color-${name})`,
+                                    } as CSSProperties
+                                  }
+                                ></div>
+                                <span className="capitalize">{name}</span>
+                                <span className="font-bold">
+                                  {value.toLocaleString("tr-TR")} $
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        />
+                      }
+                    />
+                    <ChartLegend content={<ChartLegendContent />} />
+                  </AreaChart>
+                </ChartContainer>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center rounded-md border border-border">
+                  <span className="max-w-[80vw] text-center">
+                    No data found for expenses/incomes bar chart.
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
       <WarningDialog
-        open={warningDialogState.open}
-        onOpenChange={() => setWarningDialogState({ open: false })}
-        exceededLimits={limitsReport}
+        {...{
+          open: warningDialogState.open,
+          onOpenChange: () => setWarningDialogState({ open: false }),
+          exceededLimits: limitsReport,
+        }}
       />
       <AISummaryDialog
-        open={aiSummaryDialogState.open}
-        onOpenChange={() => setAISummaryDialogState({ open: false })}
-        metrics={metrics}
-        limitsReport={limitsReport}
+        {...{
+          open: aiSummaryDialogState.open,
+          onOpenChange: () => setAISummaryDialogState({ open: false }),
+          metrics,
+          limitsReport,
+          transactions,
+        }}
       />
     </div>
   );

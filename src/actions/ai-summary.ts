@@ -4,12 +4,14 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { generateText } from "ai";
 import { getMetrics } from "@/actions/metrics";
 import { checkAuth } from "@/actions/auth";
+import { Transaction } from "@/types";
 import { expenseGroups, incomeCategories } from "@/lib/constants";
 import { getCollection } from "@/lib/mongo";
 
 export const generateSummary = async ({
   limitsReport,
   metrics,
+  transactions,
 }: {
   metrics: Awaited<ReturnType<typeof getMetrics>>["metrics"];
   limitsReport: {
@@ -18,6 +20,7 @@ export const generateSummary = async ({
     amount: number;
     limit: number;
   }[];
+  transactions: Transaction[];
 }) => {
   try {
     const { success: isAuthenticated, username } = await checkAuth();
@@ -41,7 +44,7 @@ export const generateSummary = async ({
     } | null;
 
     if (!activityRecord) {
-      collection.insertOne({ username, lastActivity: new Date() });
+      await collection.insertOne({ username, lastActivity: new Date() });
     } else {
       const isOneDayPassed =
         new Date().getTime() - activityRecord.lastActivity.getTime() >=
@@ -63,24 +66,90 @@ export const generateSummary = async ({
           content: [
             {
               type: "text",
-              text: `Theese are expense and income categories: ${JSON.stringify(expenseGroups)} ${JSON.stringify(incomeCategories)}`,
-            },
-            {
-              type: "text",
-              text: "You are a expense/income analysis expert. You'll be feed with expense/income data. Based on that feeded that you will generate a recommendations and analysis. You will pinpoint every aspect of user's data and suggest advices.",
-            },
-            {
-              type: "text",
-              text: `User transactions and some data ${JSON.stringify(metrics)}`,
-            },
-            {
-              type: "text",
-              text: `Users exceededs limits data: ${JSON.stringify(limitsReport)}`,
-            },
+              text: `
+              You are an expert financial analyst specializing in personal finance and expense tracking. Your task is to analyze a user's financial data from an expense tracker app and provide a comprehensive, detailed analysis along with personalized recommendations.
 
-            {
-              type: "text",
-              text: "Generate some suggestions advices and reports based on user's data. Your response will be used in frontend so keep your resposne end user focused at all cost.",
+              First, I will provide you with the expense and income categories used in the app:
+
+              <expense_groups>
+                ${JSON.stringify(expenseGroups)}
+              </expense_groups>
+
+              <income_categories>
+                ${JSON.stringify(incomeCategories)}
+              </income_categories>
+
+              Next, here is the user's transaction data and related metrics:
+
+              <transactions>
+                ${JSON.stringify(transactions)}
+              </transactions>
+
+              <metrics>
+                ${JSON.stringify(metrics)}
+              </metrics>
+
+              Additionally, here is a report on instances where the user exceeded their set limits:
+
+              <limits_report>
+                ${JSON.stringify(limitsReport)}
+              </limits_report>
+
+              Using this information, conduct a thorough analysis of the user's financial behavior. Your analysis should include:
+
+              1. An overview of the user's financial situation
+              2. Detailed breakdown of income and expenses by category
+              3. Identification of spending patterns and trends
+              4. Analysis of adherence to budget limits
+              5. Comparison of the user's financial behavior to general best practices
+
+              Based on your analysis, provide:
+
+              1. Specific, actionable recommendations for improving the user's financial health
+              2. Praise for positive financial behaviors
+              3. Constructive criticism for areas that need improvement
+              4. Suggestions for setting realistic financial goals
+
+              Format your response in a clear, user-friendly manner suitable for display in a frontend application and will be placed inside div. Your entire response will be placed inside <div> use any text method/technic you can use to beautify this message, you can use bulletlists and emojis. Structure to follow represents a semantic explaination. Add line breaks inside your response and dont use any html tags. Just a raw text with line breaks and bulletpoints. 
+
+              Here's the structure to follow:
+
+              <analysis>
+                <overview>
+                  [Overall financial situation summary]
+                </overview>
+
+                <income_analysis>
+                  [Detailed income analysis]
+                </income_analysis>
+
+                <expense_analysis>
+                  [Detailed expense analysis]
+                </expense_analysis>
+
+                <budget_adherence>
+                  [Analysis of budget limit adherence]
+                </budget_adherence>
+
+                <recommendations>
+                  [List of specific, actionable recommendations]
+                </recommendations>
+
+                <praise>
+                  [Positive reinforcement for good financial behaviors]
+                </praise>
+
+                <areas_for_improvement>
+                  [Constructive criticism and suggestions for improvement]
+                </areas_for_improvement>
+
+                <goal_suggestions>
+                  [Suggestions for realistic financial goals]
+                </goal_suggestions>
+              </analysis>
+
+              Ensure that your language is clear, concise, and easily understandable by the end-user. Avoid using technical jargon without explanation. Your analysis should be both informative and motivating, encouraging the user to make positive changes in their financial habits.
+                `,
             },
           ],
         },

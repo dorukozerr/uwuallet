@@ -3,6 +3,7 @@ import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { getMetrics } from "@/actions/metrics";
 import { getSummary, generateSummary } from "@/actions/ai-summary";
+import { Transaction } from "@/types";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ export const AISummaryDialog = ({
   onOpenChange,
   metrics,
   limitsReport,
+  transactions,
 }: {
   open: boolean;
   onOpenChange: () => void;
@@ -28,6 +30,7 @@ export const AISummaryDialog = ({
     amount: number;
     limit: number;
   }[];
+  transactions: Transaction[];
 }) => {
   const [isPending, setIsPending] = useState(false);
   const [summary, setSummary] = useState("");
@@ -49,7 +52,7 @@ export const AISummaryDialog = ({
   const handleGenerateSummary = async () => {
     setIsPending(true);
 
-    const res = await generateSummary({ metrics, limitsReport });
+    const res = await generateSummary({ metrics, limitsReport, transactions });
 
     if (res.summary) {
       setSummary(res.summary);
@@ -79,10 +82,13 @@ export const AISummaryDialog = ({
         <div className="flex flex-1 flex-col items-start justify-start overflow-auto py-6">
           {!summary ? (
             <div className="flex h-full w-full flex-col items-center justify-center space-y-4 text-center">
-              <Sparkles className="h-12 w-12 text-primary opacity-50" />
+              <Sparkles
+                className={`h-12 w-12 text-primary opacity-50 ${isPending ? "animate-pulse" : ""}`}
+              />
               <p className="text-muted-foreground">
-                Click the button below to generate your personalized financial
-                insights
+                {isPending
+                  ? "Please wait..."
+                  : "Click the button below to generate your personalized financial insights"}
               </p>
             </div>
           ) : (
@@ -102,8 +108,12 @@ export const AISummaryDialog = ({
             disabled={isPending}
             className="gap-2"
           >
-            <Sparkles className="h-4 w-4" />
-            <span>Generate Summary</span>
+            <Sparkles
+              className={`h-4 w-4 ${isPending ? "animate-pulse" : ""}`}
+            />
+            <span>
+              {isPending ? "Generating summary..." : "Generate Summary"}
+            </span>
           </Button>
         </DialogFooter>
       </DialogContent>
