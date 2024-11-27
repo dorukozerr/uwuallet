@@ -20,7 +20,7 @@ I just wanna practice and imrove my TS, NextJS, React, and Backend skills so why
 
 [Application Link](https://kawai-expense-tracker.vercel.app/)
 
-### Features that I may add in future
+###  Features that I may add in future
 
 -   Instead of linking transaction to users with username, I may link them with user \_id's
 -   I may add email verification for register step, and password reset functionality
