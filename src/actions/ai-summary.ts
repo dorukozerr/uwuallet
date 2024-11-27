@@ -26,6 +26,14 @@ export const generateSummary = async ({
       return { success: false, message: "Not authorized." };
     }
 
+    if (username !== "doruk") {
+      return {
+        success: false,
+        message:
+          "Please contact developer to activate AI summary functionality for your account.",
+      };
+    }
+
     const collection = await getCollection("ai-usages");
 
     const activityRecord = (await collection.findOne({ username })) as {
