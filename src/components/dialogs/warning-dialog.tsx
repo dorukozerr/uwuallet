@@ -42,7 +42,7 @@ export const WarningDialog = ({
           <DialogDescription className="text-base">
             You&apos;ve exceeded your spending limits in {exceededLimits.length}{" "}
             {exceededLimits.length === 1 ? "category" : "categories"}, going
-            over by a total of ${totalExcess.toFixed(2)}
+            over by a total of ${totalExcess.toLocaleString("tr-TR")}
           </DialogDescription>
         </DialogHeader>
         <div className="h-full w-full space-y-4 overflow-auto py-4">
