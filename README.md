@@ -2,7 +2,7 @@
 
 ### Why build another expense tracker?
 
-I just wanna practice and imrove my TS, NextJS, React, and Backend skills so why not??
+I just want to practice and improve my TS, NextJS, React, and Backend skills so why not?
 
 ### Features
 
@@ -10,19 +10,19 @@ I just wanna practice and imrove my TS, NextJS, React, and Backend skills so why
 -   Create, update, delete transactions
 -   Fully predefined form schemas and custom invalid field messages
 -   Authentication checks on private server events
--   Fetch and process transactions (expenses/incomes) data to display meaningfull content on dashboard
+-   Fetch and process transactions (expenses/incomes) data to display meaningful content on dashboard
 -   Calculate and display balance, total incomes, total expenses, savings rate, monthly averages based on user transactions data
 -   Process transactions data to display expenses distribution pie chart with date filtering
 -   Process transactions data to display monthly expenses, incomes bar chart with date filtering
 -   Add limits to each expense group for alerting user based on exceeding monthly expenses
 -   Simple yet functional, clean UI focused on simplicity
--   Generate AI summary for your transactions data and get suggestions/reviews from AI, currently I disabled this for every user except myself to not exceed my anthropic usage limit
+-   Generate AI summary for your transactions data and get suggestions/reviews from AI, currently disabled for all users except admin to not exceed my anthropic usage limit
 
 [Application Link](https://kawai-expense-tracker.vercel.app/)
 
-###  Features that I may add in future
+### Features that I may add in future
 
--   Instead of linking transaction to users with username, I may link them with user \_id's
+-   Instead of linking transactions to users with username, I may link them with user \_ids
 -   I may add email verification for register step, and password reset functionality
 -   I may add more detailed/advanced analysis reports and charts
     -   Daily transactions data processing, currently all data is generated months based
