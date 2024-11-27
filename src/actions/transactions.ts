@@ -126,7 +126,7 @@ export const populateTransactions = async () => {
     payload.push({
       title: "Initial Income Title",
       description: "Initial Income Description",
-      amount: 50000,
+      amount: 25000,
       type: "income",
       category: "salary",
       date: startDate,

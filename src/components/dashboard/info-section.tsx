@@ -254,7 +254,6 @@ export const InfoSection = ({
                 "justify-start text-left font-normal",
                 !date && "text-muted-foreground"
               )}
-              size="sm"
               variant="outline"
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -290,7 +289,7 @@ export const InfoSection = ({
       <div className="w-full flex-1 overflow-auto">
         <div className="flex h-full w-full flex-col items-start justify-start lg:flex-row">
           <div className="h-full w-full flex-[0.4] p-2 xl:p-4">
-            <div className="flex h-full w-full flex-col items-start justify-start gap-4 rounded-md border border-border bg-muted/50 p-4 md:flex-row lg:flex-col">
+            <div className="flex h-full w-full flex-col items-start justify-start gap-4 rounded-md border border-border bg-muted/50 p-4">
               <div className="w-max space-y-1">
                 <h3 className="text-base font-bold leading-tight md:text-lg">
                   Current Balance
@@ -359,7 +358,7 @@ export const InfoSection = ({
                 config={chartConfig}
                 className="h-full w-full rounded-md border border-border bg-muted/50"
               >
-                <PieChart>
+                <PieChart accessibilityLayer>
                   <Pie
                     data={pieChartData}
                     dataKey="totalAmount"

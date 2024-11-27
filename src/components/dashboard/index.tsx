@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontalIcon, PlusIcon } from "lucide-react";
+import { MoreHorizontalIcon, PlusIcon, Bolt } from "lucide-react";
 import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
 // import { toast } from "sonner";
 // import { populateTransactions } from "@/actions/transactions";
@@ -11,6 +11,7 @@ import { Transaction } from "@/types";
 import { InfoSection } from "@/components/dashboard/info-section";
 import { TxDialog } from "@/components/dialogs/tx-dialog";
 import { DeleteTxDialog } from "@/components/dialogs/delete-tx-dialog";
+import { LimitsDialog } from "../dialogs/limits-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -49,6 +50,17 @@ export const Dashboard = ({
     _id: "",
     username: "",
   });
+  const [limitsDialogState, setLimitsDialogState] = useState<{
+    open: boolean;
+    username: string;
+  }>({
+    open: false,
+    username: "",
+  });
+
+  const doesMetricsExists =
+    metrics.data?.analytics.totalExpense !== 0 ||
+    metrics.data.analytics.totalIncome !== 0;
 
   return (
     <>
@@ -57,21 +69,20 @@ export const Dashboard = ({
           <h1 className="text-lg font-bold capitalize sm:text-2xl">
             <span>Welcome {username}!</span>
           </h1>
-          <div className="flex items-center justify-center gap-2">
+          <div className="hidden items-center justify-center gap-4 sm:flex">
             {/*
-                <Button
-                  onClick={async () => {
-                  const res = await populateTransactions();
-                  toast(res.message);
-                  }}
-                >
-                  Populate
-                </Button>
-              */}
+            <Button
+              onClick={async () => {
+                const res = await populateTransactions();
+                toast(res.message);
+              }}
+            >
+              Populate
+            </Button>
+            */}
             <Button
               variant="outline"
               className="flex items-center justify-center gap-1"
-              size="sm"
               onClick={() =>
                 setTxDialogState({
                   open: true,
@@ -84,12 +95,43 @@ export const Dashboard = ({
               <PlusIcon className="h-[1.2rem] w-[1.2rem]" />
               <span>Add Transaction</span>
             </Button>
+            <Button
+              className="flex items-center justify-center gap-1"
+              variant="outline"
+              onClick={() => setLimitsDialogState({ open: true, username })}
+            >
+              <Bolt className="h-[1.2rem] w-[1.2rem]" />
+              <span>Configure Limits</span>
+            </Button>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild className="block sm:hidden">
+              <Button variant="outline">Actions</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuItem
+                onClick={() =>
+                  setTxDialogState({
+                    open: true,
+                    mode: "create",
+                    tx: null,
+                    username,
+                  })
+                }
+              >
+                <PlusIcon className="h-[1.2rem] w-[1.2rem]" />
+                <span>Add Transaction</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLimitsDialogState({ open: true, username })}
+              >
+                <Bolt className="h-[1.2rem] w-[1.2rem]" />
+                <span>Configure Limits</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {metrics.data?.analytics.totalExpense !== 0 ||
-        metrics.data.analytics.totalIncome !== 0 ? (
-          <InfoSection metrics={metrics} />
-        ) : null}
+        {doesMetricsExists ? <InfoSection metrics={metrics} /> : null}
         <div className="flex h-max w-full items-center justify-between">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions
@@ -214,6 +256,16 @@ export const Dashboard = ({
         }
         _id={deleteTxDialogState._id}
         username={deleteTxDialogState.username}
+      />
+      <LimitsDialog
+        open={limitsDialogState.open}
+        onOpenChange={() =>
+          setLimitsDialogState({
+            open: false,
+            username: "",
+          })
+        }
+        username={limitsDialogState.username}
       />
     </>
   );

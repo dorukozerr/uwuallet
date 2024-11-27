@@ -58,3 +58,14 @@ export const txFormSchema = z
       path: ["recursionPeriod"],
     }
   );
+
+export const limitsFormSchema = z.object({
+  housing: z.coerce.number(),
+  transportation: z.coerce.number(),
+  healthcare: z.coerce.number(),
+  living: z.coerce.number(),
+  family: z.coerce.number(),
+  leisure: z.coerce.number(),
+  financial: z.coerce.number(),
+  miscellaneous: z.coerce.number(),
+});
