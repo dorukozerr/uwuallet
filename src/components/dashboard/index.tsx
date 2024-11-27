@@ -30,33 +30,29 @@ export const Dashboard = ({
 }: {
   username: string;
   transactions: Transaction[];
-  metrics: Awaited<ReturnType<typeof getMetrics>>["data"];
-  limits: z.infer<typeof limitsFormSchema> & { username: string };
+  metrics: Awaited<ReturnType<typeof getMetrics>>["metrics"];
+  limits: z.infer<typeof limitsFormSchema>;
 }) => {
   const { width } = useScreenSize();
   const [txDialogState, setTxDialogState] = useState<{
     open: boolean;
     mode: "create" | "edit" | "";
     tx: Transaction | null;
-    username: string;
   }>({
     open: false,
     mode: "",
     tx: null,
-    username: "",
   });
   const [deleteTxDialogState, setDeleteTxDialogState] = useState<{
     open: boolean;
     _id: string;
-    username: string;
   }>({
     open: false,
     _id: "",
-    username: "",
   });
   const [limitsDialogState, setLimitsDialogState] = useState<{
     open: boolean;
-    limits: (z.infer<typeof limitsFormSchema> & { username: string }) | null;
+    limits: z.infer<typeof limitsFormSchema> | null;
   }>({
     open: false,
     limits: null,
@@ -92,7 +88,6 @@ export const Dashboard = ({
                   open: true,
                   mode: "create",
                   tx: null,
-                  username,
                 })
               }
             >
@@ -115,12 +110,7 @@ export const Dashboard = ({
             <DropdownMenuContent className="w-56">
               <DropdownMenuItem
                 onClick={() =>
-                  setTxDialogState({
-                    open: true,
-                    mode: "create",
-                    tx: null,
-                    username,
-                  })
+                  setTxDialogState({ open: true, mode: "create", tx: null })
                 }
               >
                 <PlusIcon className="h-[1.2rem] w-[1.2rem]" />
@@ -168,7 +158,6 @@ export const Dashboard = ({
                             open: true,
                             mode: "edit",
                             tx: transaction,
-                            username,
                           })
                         }
                       >
@@ -179,7 +168,6 @@ export const Dashboard = ({
                           setDeleteTxDialogState({
                             open: true,
                             _id: transaction._id,
-                            username,
                           })
                         }
                       >
@@ -242,12 +230,10 @@ export const Dashboard = ({
             open: false,
             mode: "",
             tx: null,
-            username: "",
           })
         }
         mode={txDialogState.mode}
         transaction={txDialogState.tx}
-        username={username}
       />
       <DeleteTxDialog
         open={deleteTxDialogState.open}
@@ -255,11 +241,9 @@ export const Dashboard = ({
           setDeleteTxDialogState({
             open: false,
             _id: "",
-            username: "",
           })
         }
         _id={deleteTxDialogState._id}
-        username={deleteTxDialogState.username}
       />
       <LimitsDialog
         open={limitsDialogState.open}

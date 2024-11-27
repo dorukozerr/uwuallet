@@ -62,13 +62,11 @@ export const TxDialog = ({
   onOpenChange,
   mode,
   transaction,
-  username,
 }: {
   open: boolean;
   onOpenChange: () => void;
   mode: "create" | "edit" | "";
   transaction: Transaction | null;
-  username: string;
 }) => {
   const [isPending, setIsPending] = useState(false);
   const form = useForm<z.infer<typeof txFormSchema>>({
@@ -93,13 +91,9 @@ export const TxDialog = ({
 
     const res =
       mode === "create"
-        ? await createTransaction({ username, ...values })
+        ? await createTransaction(values)
         : mode === "edit"
-          ? await updateTransaction({
-              _id: transaction?._id || "",
-              username,
-              ...values,
-            })
+          ? await updateTransaction({ _id: transaction?._id || "", ...values })
           : null;
 
     toast(res?.message || "Invalid dialog mode");
@@ -465,7 +459,7 @@ export const TxDialog = ({
                         checked={field.value}
                         onCheckedChange={(e) => {
                           field.onChange(e);
-                          form.setValue("recursionPeriod", undefined);
+                          form.setValue("recursionPeriod", null);
                           form.setValue("endDate", "");
                         }}
                       />
@@ -507,7 +501,7 @@ export const TxDialog = ({
                       </FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        value={field.value}
+                        value={field.value || undefined}
                       >
                         <FormControl>
                           <SelectTrigger className="text-left capitalize">

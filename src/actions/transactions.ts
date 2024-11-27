@@ -14,8 +14,14 @@ import {
   recursionPeriods,
 } from "@/lib/constants";
 
-export const getTransactions = async ({ username }: { username: string }) => {
+export const getTransactions = async () => {
   try {
+    const { success: isAuthenticated, username } = await checkAuth();
+
+    if (!isAuthenticated) {
+      return { success: false, message: "Not authorized." };
+    }
+
     const collection = await getCollection("transactions");
 
     const transactions = await collection
@@ -36,10 +42,10 @@ export const getTransactions = async ({ username }: { username: string }) => {
 };
 
 export const createTransaction = async (
-  payload: z.infer<typeof txFormSchema> & { username: string }
+  payload: z.infer<typeof txFormSchema>
 ) => {
   try {
-    const { success: isAuthenticated } = await checkAuth();
+    const { success: isAuthenticated, username } = await checkAuth();
 
     if (!isAuthenticated) {
       return { success: false, message: "Not Authorized." };
@@ -49,6 +55,7 @@ export const createTransaction = async (
 
     const res = await collection.insertOne({
       ...payload,
+      username,
       date: new Date(payload.date),
       endDate: payload.endDate ? new Date(payload.endDate) : payload.endDate,
     });
@@ -70,9 +77,9 @@ export const updateTransaction = async ({
   date,
   endDate,
   ...newData
-}: Transaction) => {
+}: Omit<Transaction, "username">) => {
   try {
-    const { success: isAuthenticated } = await checkAuth();
+    const { success: isAuthenticated, username } = await checkAuth();
 
     if (!isAuthenticated) {
       return { success: false, message: "Not Authorized." };
@@ -81,7 +88,7 @@ export const updateTransaction = async ({
     const collection = await getCollection("transactions");
 
     const res = await collection.findOneAndUpdate(
-      { _id: new ObjectId(_id), username: newData.username },
+      { _id: new ObjectId(_id), username },
       {
         $set: {
           ...newData,
@@ -103,15 +110,9 @@ export const updateTransaction = async ({
   }
 };
 
-export const deleteTransaction = async ({
-  _id,
-  username,
-}: {
-  _id: string;
-  username: string;
-}) => {
+export const deleteTransaction = async ({ _id }: { _id: string }) => {
   try {
-    const { success: isAuthenticated } = await checkAuth();
+    const { success: isAuthenticated, username } = await checkAuth();
 
     if (!isAuthenticated) {
       return { success: false, message: "Not Authorized." };
@@ -120,8 +121,8 @@ export const deleteTransaction = async ({
     const collection = await getCollection("transactions");
 
     const res = await collection.findOneAndDelete({
-      username,
       _id: new ObjectId(_id),
+      username,
     });
 
     if (res) revalidatePath("/");
@@ -171,7 +172,7 @@ export const populateTransactions = async () => {
           : incomeCategories[
               Math.floor(Math.random() * incomeCategories.length)
             ];
-      const amount = [1000, 1500, 2000, 2500, 3250][
+      const amount = [1000, 1500, 500, 1750, 250][
         Math.floor(Math.random() * 5)
       ];
       const date = incrementByMonth(startDate, i);

@@ -27,7 +27,7 @@ export const createLimits = async ({ username }: { username: string }) => {
 
     return {
       success: true,
-      message: `Limits configuration initialized for user: ${username}`,
+      message: `Limits configuration initialized for user: ${username}.`,
     };
   } catch (error) {
     console.error("/limits/createLimits error =>", error);
@@ -36,9 +36,9 @@ export const createLimits = async ({ username }: { username: string }) => {
   }
 };
 
-export const getLimits = async ({ username }: { username: string }) => {
+export const getLimits = async () => {
   try {
-    const { success: isAuthenticated } = await checkAuth();
+    const { success: isAuthenticated, username } = await checkAuth();
 
     if (!isAuthenticated) {
       return { success: false, message: "Not Authorized." };
@@ -57,14 +57,12 @@ export const getLimits = async ({ username }: { username: string }) => {
 };
 
 export const updateLimits = async ({
-  username,
   limits,
 }: {
-  username: string;
   limits: z.infer<typeof limitsFormSchema>;
 }) => {
   try {
-    const { success: isAuthenticated } = await checkAuth();
+    const { success: isAuthenticated, username } = await checkAuth();
 
     if (!isAuthenticated) {
       return { success: false, message: "Not Authorized." };

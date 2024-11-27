@@ -32,8 +32,8 @@ export const InfoSection = ({
   metrics,
   limits,
 }: {
-  metrics: Awaited<ReturnType<typeof getMetrics>>["data"];
-  limits: (z.infer<typeof limitsFormSchema> & { username: string }) | null;
+  metrics: Awaited<ReturnType<typeof getMetrics>>["metrics"];
+  limits: z.infer<typeof limitsFormSchema> | null;
 }) => {
   const { width } = useScreenSize();
   const [date, setDate] = useState<DateRange | undefined>({

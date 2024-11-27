@@ -234,7 +234,7 @@ export const getMetrics = async () => {
     return {
       success: true,
       message: "Metrics are generated.",
-      data: { balance, chartData, analytics },
+      metrics: { balance, chartData, analytics },
     };
   } catch (error) {
     console.error("/metrics/getMetrics error =>", error);

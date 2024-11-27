@@ -21,7 +21,7 @@ export const AISummaryDialog = ({
 }: {
   open: boolean;
   onOpenChange: () => void;
-  metrics: Awaited<ReturnType<typeof getMetrics>>["data"];
+  metrics: Awaited<ReturnType<typeof getMetrics>>["metrics"];
   limitsReport: {
     date: string;
     group: string;

@@ -60,7 +60,7 @@ export const initialTransactionData = {
   category: "",
   date: "",
   isRecursive: false,
-  recursionPeriod: undefined,
+  recursionPeriod: null,
   endDate: "",
 };
 

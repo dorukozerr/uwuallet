@@ -47,12 +47,12 @@ export const txFormSchema = z
       .nativeEnum(recursionPeriods, {
         message: "Please select how often this transaction repeats",
       })
-      .optional(),
+      .nullish(),
     endDate: z.string().optional(),
   })
   .refine(
     ({ isRecursive, recursionPeriod }) =>
-      isRecursive ? recursionPeriod !== undefined : true,
+      isRecursive ? recursionPeriod : true,
     {
       message: "Please select how often this transaction repeats",
       path: ["recursionPeriod"],

@@ -15,9 +15,9 @@ const Page = async () => {
     return <AuthForm />;
   }
 
-  const { transactions } = await getTransactions({ username });
-  const { data: metrics } = await getMetrics();
-  const { limits } = await getLimits({ username });
+  const { transactions } = await getTransactions();
+  const { metrics } = await getMetrics();
+  const { limits } = await getLimits();
 
   const pageData = {
     username,
@@ -25,9 +25,7 @@ const Page = async () => {
     metrics,
     limits: JSON.parse(JSON.stringify(limits)) as unknown as z.infer<
       typeof limitsFormSchema
-    > & {
-      username: string;
-    },
+    >,
   };
 
   return <Dashboard {...pageData} />;

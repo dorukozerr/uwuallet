@@ -16,19 +16,17 @@ export const DeleteTxDialog = ({
   open,
   onOpenChange,
   _id,
-  username,
 }: {
   open: boolean;
   onOpenChange: () => void;
   _id: string;
-  username: string;
 }) => {
   const [isPending, setIsPending] = useState(false);
 
   const handleDelete = async () => {
     setIsPending(true);
 
-    const res = await deleteTransaction({ _id, username });
+    const res = await deleteTransaction({ _id });
 
     if (res.success) onOpenChange();
 

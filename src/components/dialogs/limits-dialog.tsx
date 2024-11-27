@@ -36,7 +36,7 @@ export const LimitsDialog = ({
 }: {
   open: boolean;
   onOpenChange: () => void;
-  limits: (z.infer<typeof limitsFormSchema> & { username: string }) | null;
+  limits: z.infer<typeof limitsFormSchema> | null;
 }) => {
   const form = useForm<z.infer<typeof limitsFormSchema>>({
     resolver: zodResolver(limitsFormSchema),
@@ -52,10 +52,7 @@ export const LimitsDialog = ({
   }, [limits, form]);
 
   const onSubmit = async (values: z.infer<typeof limitsFormSchema>) => {
-    const res = await updateLimits({
-      username: limits?.username || "",
-      limits: values,
-    });
+    const res = await updateLimits({ limits: values });
 
     if (res.success) onOpenChange();
 
