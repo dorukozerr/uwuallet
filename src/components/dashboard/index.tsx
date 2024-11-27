@@ -56,7 +56,7 @@ export const Dashboard = ({
   });
   const [limitsDialogState, setLimitsDialogState] = useState<{
     open: boolean;
-    limits: z.infer<typeof limitsFormSchema> | null;
+    limits: (z.infer<typeof limitsFormSchema> & { username: string }) | null;
   }>({
     open: false,
     limits: null,
@@ -135,7 +135,7 @@ export const Dashboard = ({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {doesMetricsExists ? <InfoSection metrics={metrics} /> : null}
+        {doesMetricsExists ? <InfoSection {...{ metrics, limits }} /> : null}
         <div className="flex h-max w-full items-center justify-between">
           <h3 className="text-lg font-bold capitalize sm:text-2xl">
             Transactions
@@ -269,7 +269,6 @@ export const Dashboard = ({
             limits: null,
           })
         }
-        username={limitsDialogState.username}
         limits={limitsDialogState.limits}
       />
     </>

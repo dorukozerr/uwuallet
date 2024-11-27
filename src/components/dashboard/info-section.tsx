@@ -3,11 +3,14 @@
 import { useState, useMemo, CSSProperties } from "react";
 import { Bar, BarChart, Pie, PieChart, XAxis } from "recharts";
 import { DateRange } from "react-day-picker";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { z } from "zod";
+import { Calendar as CalendarIcon, AlertCircle } from "lucide-react";
 import { getMetrics } from "@/actions/metrics";
 import { useScreenSize } from "@/hooks/useScreenSize";
+import { limitsFormSchema } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { expenseGroups } from "@/lib/constants";
+import { WarningDialog } from "@/components/dialogs/warning-dialog";
 import {
   ChartConfig,
   ChartContainer,
@@ -26,14 +29,19 @@ import { Calendar } from "@/components/ui/calendar";
 
 export const InfoSection = ({
   metrics,
+  limits,
 }: {
   metrics: Awaited<ReturnType<typeof getMetrics>>["data"];
+  limits: (z.infer<typeof limitsFormSchema> & { username: string }) | null;
 }) => {
   const { width } = useScreenSize();
   const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
+  const [warningDialogState, setWarningDialogState] = useState<{
+    open: boolean;
+  }>({ open: false });
 
   const monthlyAvgBalance = metrics?.analytics?.monthlyAverages?.balance || 0;
   const monthlyAvgIncome = metrics?.analytics?.monthlyAverages?.income || 0;
@@ -236,10 +244,95 @@ export const InfoSection = ({
     }
   }, [date, metrics]);
 
+  const limitsReport = useMemo(() => {
+    const exceededlimitsData: {
+      date: string;
+      group: string;
+      amount: number;
+      limit: number;
+    }[] = [];
+    let report: {
+      [key: string]: {
+        [key: string]: number;
+      };
+    } = {};
+
+    const sortData = (
+      data: {
+        date: string;
+        group: string;
+        amount: number;
+        limit: number;
+      }[]
+    ) =>
+      data.sort((a, b) => {
+        const [monthA, yearA] = a.date.split("-").map(Number);
+        const [monthB, yearB] = b.date.split("-").map(Number);
+
+        const dateA = new Date(yearA, monthA - 1);
+        const dateB = new Date(yearB, monthB - 1);
+
+        return dateA.getTime() - dateB.getTime();
+      });
+
+    Object.entries(metrics?.chartData?.expenses || {}).forEach((expense) => {
+      Object.entries(expense[1]).forEach((entry) => {
+        const groupName = entry[0] || "";
+
+        report = {
+          ...report,
+          [expense[0]]: report[expense[0]]
+            ? {
+                ...report[expense[0]],
+                [groupName]: report[expense[0]][groupName]
+                  ? report[expense[0]][groupName] + entry[1]
+                  : entry[1],
+              }
+            : {
+                [groupName]: entry[1],
+              },
+        };
+      });
+    });
+
+    Object.entries(report).forEach((entry) => {
+      const date = entry[0];
+
+      Object.entries(entry[1]).forEach((expense) => {
+        const expenseLimit = limits
+          ? limits[expense[0] as keyof Omit<typeof limits, "username">]
+          : 0;
+
+        if (limits && expenseLimit < expense[1] && expenseLimit > 0) {
+          exceededlimitsData.push({
+            date,
+            group: expense[0],
+            amount: expense[1],
+            limit: expenseLimit,
+          });
+        }
+      });
+    });
+
+    if (exceededlimitsData.length > 0) {
+      setWarningDialogState({ open: true });
+    }
+
+    return sortData(exceededlimitsData);
+  }, [metrics, limits]);
+
   return (
     <div className="flex h-[1200px] w-full flex-col justify-start md:h-[600px] lg:h-[500px]">
-      <div className="flex h-max w-full items-center justify-between gap-2">
-        <div className="flex items-center justify-center gap-2"></div>
+      <div className="flex h-max w-full items-center justify-end gap-4">
+        {limitsReport.length ? (
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => setWarningDialogState({ open: true })}
+          >
+            <AlertCircle className="h-[1.2rem] w-[1.2rem]" />
+          </Button>
+        ) : null}
         <Popover>
           <PopoverTrigger asChild>
             <Button
@@ -412,6 +505,11 @@ export const InfoSection = ({
           </div>
         </div>
       </div>
+      <WarningDialog
+        open={warningDialogState.open}
+        onOpenChange={() => setWarningDialogState({ open: false })}
+        exceededLimits={limitsReport}
+      />
     </div>
   );
 };
