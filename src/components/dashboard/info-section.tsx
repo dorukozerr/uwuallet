@@ -322,7 +322,7 @@ export const InfoSection = ({
   }, [metrics, limits]);
 
   return (
-    <div className="flex h-[1200px] w-full flex-col justify-start md:h-[600px] lg:h-[500px]">
+    <div className="flex h-[1200px] w-full flex-col justify-start md:h-[900px] lg:h-[500px] gap-4">
       <div className="flex h-max w-full items-center justify-end gap-4">
         {limitsReport.length ? (
           <Button
@@ -373,8 +373,8 @@ export const InfoSection = ({
         </Popover>
       </div>
       <div className="w-full flex-1 overflow-auto">
-        <div className="flex h-full w-full flex-col items-start justify-start lg:flex-row">
-          <div className="h-full w-full flex-[0.4] p-2 xl:p-4">
+        <div className="flex h-full w-full flex-col items-start justify-start lg:flex-row gap-4">
+          <div className="h-full w-full flex-[0.4]">
             <div className="flex h-full w-full flex-col items-start justify-start gap-4 rounded-md border border-border bg-muted/50 p-4">
               <div className="w-max space-y-1">
                 <h3 className="text-base font-bold leading-tight md:text-lg">
@@ -438,8 +438,8 @@ export const InfoSection = ({
               </div>
             </div>
           </div>
-          <div className="flex h-full w-full flex-1 flex-col items-start justify-start overflow-auto md:flex-row lg:w-auto">
-            <div className="h-full w-full flex-1 overflow-auto p-2 xl:p-4">
+          <div className="flex h-full w-full flex-1 flex-col items-start justify-start overflow-auto md:flex-row lg:w-auto gap-4">
+            <div className="h-full w-full flex-1 overflow-auto">
               <ChartContainer
                 config={chartConfig}
                 className="h-full w-full rounded-md border border-border bg-muted/50"
@@ -481,7 +481,7 @@ export const InfoSection = ({
                 </PieChart>
               </ChartContainer>
             </div>
-            <div className="h-full w-full flex-1 overflow-auto p-2 xl:p-4">
+            <div className="h-full w-full flex-1 overflow-auto">
               <ChartContainer
                 config={chartConfig}
                 className="h-full w-full rounded-md border border-border bg-muted/50"
