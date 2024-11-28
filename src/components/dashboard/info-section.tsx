@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, CSSProperties } from "react";
-import { Area, AreaChart, Pie, PieChart, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Pie, PieChart, XAxis } from "recharts";
 import { DateRange } from "react-day-picker";
 import { z } from "zod";
 import { Calendar as CalendarIcon, AlertCircle, Sparkles } from "lucide-react";
@@ -524,7 +524,6 @@ export const InfoSection = ({
                   className="h-full w-full rounded-md border border-border bg-muted/50 p-4"
                 >
                   <AreaChart accessibilityLayer data={areaChartData || []}>
-                    <YAxis />
                     <XAxis
                       dataKey="date"
                       tickLine={false}
