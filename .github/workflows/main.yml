@@ -30,10 +30,10 @@ jobs:
             cd ~/apps/uwuallet
             
             # Pull latest changes
-            git pull origin main
+            git pull
             
             # Install dependencies
-            npm ci
+            npm i --legacy-peer-deps
             
             # Build the application (if needed)
             npm run build
