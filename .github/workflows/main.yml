@@ -31,8 +31,9 @@ jobs:
 
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_uwuallet.com"
            
-            source ~/.bashrc
-            source ~/.profile
+            # Load NVM and Node
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
             
             # Pull latest changes
             git pull
