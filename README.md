@@ -43,4 +43,5 @@ I just want to practice and improve my TS, NextJS, React, and Backend skills so 
 -   Design updates to make app even better
 -   Encrypt user's data so only user can decrypt and see it
     -   I don't know how I can do this but it can be a nice know-how gain and privacy improvement
--   Allow users to select their currency
+-   Allow users to select their main currency to calculate balance,
+-   Allow users to add transactions with different currencys
