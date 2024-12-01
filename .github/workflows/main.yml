@@ -1,0 +1,59 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Add known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          
+      - name: Deploy to VPS
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ssh $SERVER_USER@$SERVER_IP << 'EOF'
+            # Navigate to your app directory
+            cd ~/apps/uwuallet
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Install dependencies
+            npm ci
+            
+            # Build the application (if needed)
+            npm run build
+            
+            # Start new instance with PM2
+            # Using a temporary name for the new instance
+            pm2 start npm --name "app-new" -- start
+            
+            # Wait for the new instance to fully start (adjust time as needed)
+            sleep 10
+            
+            # Stop the old instance
+            pm2 delete "uwuallet" || true
+            
+            # Rename the new instance to the standard name
+            pm2 rename "app-new" "uwuallet"
+            
+            # Save PM2 configuration
+            pm2 save
+            
+            # Clean up old build artifacts if needed
+            npm prune --production
+          EOF
