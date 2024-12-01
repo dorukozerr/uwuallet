@@ -14,9 +14,7 @@ export const Header = async () => {
 
   return (
     <header className="h-18 mx-auto flex w-full max-w-[1440px] items-center justify-between border-b border-border p-4">
-      <h1 className="text-lg font-bold leading-tight sm:text-2xl">
-        Kawai Expense Tracker
-      </h1>
+      <h1 className="text-lg font-bold leading-tight sm:text-2xl">UwUallet</h1>
       <div className="hidden items-center justify-center gap-4 sm:flex">
         {isAuthenticated ? <LogoutButton mode="desktop" /> : null}
         <ThemeToggler mode="desktop" />
