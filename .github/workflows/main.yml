@@ -27,12 +27,19 @@ jobs:
         run: |
           ssh $SERVER_USER@$SERVER_IP << 'EOF'
             cd ~/apps/uwuallet
+            
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_uwuallet.com"
             export NVM_DIR="$HOME/.nvm"
+            
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            
             git pull
+            
             npm i --legacy-peer-deps
+            
             npm run build
+            
             pm2 restart uwuallet
-            npm prune --production
+            
+            npm prune --production --legacy-peer-deps
           EOF
