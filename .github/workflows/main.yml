@@ -10,36 +10,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.8.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          
+          ssh-auth-sock: ${{ runner.temp }}/ssh-auth.sock
+
       - name: Add known hosts
         run: |
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          
+
       - name: Deploy to VPS
         env:
           SERVER_IP: ${{ secrets.SERVER_IP }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_AUTH_SOCK: ${{ runner.temp }}/ssh-auth.sock
         run: |
           ssh $SERVER_USER@$SERVER_IP << 'EOF'
             cd ~/apps/uwuallet
-            
+
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_uwuallet.com"
             export NVM_DIR="$HOME/.nvm"
-            
+
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            
+
             git pull
-            
+
             npm i --legacy-peer-deps
-            
+
             npm run build
-            
+
             pm2 restart uwuallet
-            
+
             npm prune --production --legacy-peer-deps
           EOF
