@@ -1,4 +1,4 @@
-# Kawai Expense Tracker
+# UwUallet
 
 ### Why build another expense tracker?
 
@@ -18,7 +18,7 @@ I just want to practice and improve my TS, NextJS, React, and Backend skills so 
 -   Simple yet functional, clean UI focused on simplicity
 -   Generate AI summary for your transactions data and get suggestions/reviews from AI, currently disabled for all users except admin to not exceed my anthropic usage limit
 
-[Application Link](https://kawai-expense-tracker.vercel.app/)
+[Application Link](https://uwuallet.com)
 
 ### Features that I may add in future
 
@@ -43,3 +43,4 @@ I just want to practice and improve my TS, NextJS, React, and Backend skills so 
 -   Design updates to make app even better
 -   Encrypt user's data so only user can decrypt and see it
     -   I don't know how I can do this but it can be a nice know-how gain and privacy improvement
+-   Allow users to select their currency
