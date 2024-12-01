@@ -28,6 +28,11 @@ jobs:
           ssh $SERVER_USER@$SERVER_IP << 'EOF'
             # Navigate to your app directory
             cd ~/apps/uwuallet
+
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_uwuallet.com"
+           
+            source ~/.bashrc
+            source ~/.profile
             
             # Pull latest changes
             git pull
