@@ -26,40 +26,13 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           ssh $SERVER_USER@$SERVER_IP << 'EOF'
-            # Navigate to your app directory
             cd ~/apps/uwuallet
-
             export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519_uwuallet.com"
-           
-            # Load NVM and Node
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            
-            # Pull latest changes
             git pull
-            
-            # Install dependencies
             npm i --legacy-peer-deps
-            
-            # Build the application (if needed)
             npm run build
-            
-            # Start new instance with PM2
-            # Using a temporary name for the new instance
-            pm2 start npm --name "app-new" -- start
-            
-            # Wait for the new instance to fully start (adjust time as needed)
-            sleep 10
-            
-            # Stop the old instance
-            pm2 delete "uwuallet" || true
-            
-            # Rename the new instance to the standard name
-            pm2 rename "app-new" "uwuallet"
-            
-            # Save PM2 configuration
-            pm2 save
-            
-            # Clean up old build artifacts if needed
+            pm2 restart uwuallet
             npm prune --production
           EOF
