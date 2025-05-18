@@ -6,7 +6,7 @@ I just want to practice and improve my TS, NextJS, React, and Backend skills so 
 
 ### Note
 
-Due to react 19 and NextJS security updates versions are outdated and broken. Treat this project as a example for server actions, mongodb, and frontend boilerplate. Don't wanna spend time to fix versions.
+Due to React 19 and NextJS security updates versions are outdated and broken. Treat this project as a example for server actions, mongodb, and frontend boilerplate. Don't wanna spend time to fix versions.
 
 ![screenshot](ss-1.png)
 ![screenshot](ss-2.png)
